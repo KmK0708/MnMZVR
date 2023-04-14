@@ -84,7 +84,7 @@ public:
 	// 던지면 원하는 방향으로 날아가도록 하고싶다.
 	// 필요속성 : 던질 힘, 던질 방향, 직전위치
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
-		float MyThrowPower = 1000.0f;
+		float MyThrowPower = 10000.0f;
 	// 던질 방향
 	FVector ThrowDirection;
 	// 직전위치
@@ -100,8 +100,8 @@ public:
 	//=============위젯==============//
 	protected:
 	// 위젯 관련 속성
-// 	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
-// 		class UWidgetInteractionComponent* WidgetInteractionComp;
+	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
+		class UWidgetInteractionComponent* WidgetInteractionComp;
 
 	// 릴리즈 상태로 되돌려놓기
 	void ReleaseUIInput();

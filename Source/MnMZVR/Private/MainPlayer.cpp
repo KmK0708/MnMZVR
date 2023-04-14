@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
+#include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
 #include <MotionControllerComponent.h>
 #include <HeadMountedDisplayFunctionLibrary.h>
@@ -172,22 +173,122 @@ void AMainPlayer::Turn(const FInputActionValue& Values)
 
 void AMainPlayer::OnClick(const FInputActionValue& Values)
 {
-// 	// UI 에 이벤트를 전달하고 싶다.
-// 	if (WidgetInteractionComp)
-// 	{
-// 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-// 		WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
-// 	}
+	// UI 에 이벤트를 전달하고 싶다.
+	if (WidgetInteractionComp)
+	{
+		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
+		WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+	}
 }
 
 void AMainPlayer::TryGrabLeft()
 {
+	// 중심점
+	FVector Center = LeftHand->GetComponentLocation();
+	// 충돌체크(구충돌)
 
+	// 충돌한 물체를 기억할 배열
+	TArray<FOverlapResult> HitObj;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	params.AddIgnoredComponent(LeftHand);
+	bool bHit = GetWorld()->OverlapMultiByChannel(HitObj, Center, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(GrabRange), params);
+	if (bHit == false)
+	{
+		return;
+	}
+	// 가장 가까운 물체를 잡도록 하자
+	// 가장 가까운 물체 인덱스
+	int32 Closest = 0;
+	for (int i = 0; i < HitObj.Num(); ++i)
+	{
+		// 1. 물리기능이 활성화 되어 있는 대상만 판단
+		if (HitObj[i].GetComponent()->IsSimulatingPhysics() == false)
+		{
+			continue;
+		}
+		// 잡기에 성공했다
+		IsGrabedLeft = true;
+		// 2.. 현재 손과 가장 가까운 대상과 이번에 검출할 대상과 더 가까운 대상이 있다면		
+		// 필요속성 : 현재 가장 가까운 대상과 손과의 거리
+		float ClosestDist = FVector::Dist(HitObj[Closest].GetActor()->GetActorLocation(), Center);
+		// 필요속성 : 이번에 검출할 대상과 손과의 거리
+		float NextDist = FVector::Dist(HitObj[0].GetActor()->GetActorLocation(), Center);
+
+		// 3. 만약 이번 대상이 현재 대상보다 가깝다면,
+		if (NextDist < ClosestDist)
+		{
+
+			// 가장 가까운 대상으로 변경하기
+			Closest = i;
+		}
+	}
+
+	// 잡기에 성공했다면
+	if (IsGrabedLeft)
+	{
+		// 물체 물리기능 비활성화
+		GrabbedObject = HitObj[Closest].GetComponent();
+		GrabbedObject->SetSimulatePhysics(false);
+		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 손에 붙여주자
+		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
+	}
 }
 
 void AMainPlayer::TryGrabRight()
 {
+	// 중심점
+	FVector Center = RightHand->GetComponentLocation();
+	// 충돌체크(구충돌)
+	DrawDebugSphere(GetWorld(), Center, 100.0f, 30, FColor::Red, false, 2.0f);
+	// 충돌한 물체를 기억할 배열
+	TArray<FOverlapResult> HitObj;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	params.AddIgnoredComponent(RightHand);
+	bool bHit = GetWorld()->OverlapMultiByChannel(HitObj, Center, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(GrabRange), params);
+	if (bHit == false)
+	{
+		return;
+	}
+	// 가장 가까운 물체를 잡도록 하자
+	// 가장 가까운 물체 인덱스
+	int32 Closest = 0;
+	for (int i = 0; i < HitObj.Num(); ++i)
+	{
+		// 1. 물리기능이 활성화 되어 있는 대상만 판단
+		if (HitObj[i].GetComponent()->IsSimulatingPhysics() == false)
+		{
+			continue;
+		}
+		// 잡기에 성공했다
+		IsGrabedRight = true;
+		// 2.. 현재 손과 가장 가까운 대상과 이번에 검출할 대상과 더 가까운 대상이 있다면		
+		// 필요속성 : 현재 가장 가까운 대상과 손과의 거리
+		float ClosestDist = FVector::Dist(HitObj[Closest].GetActor()->GetActorLocation(), Center);
+		// 필요속성 : 이번에 검출할 대상과 손과의 거리
+		float NextDist = FVector::Dist(HitObj[0].GetActor()->GetActorLocation(), Center);
 
+		// 3. 만약 이번 대상이 현재 대상보다 가깝다면,
+		if (NextDist < ClosestDist)
+		{
+
+			// 가장 가까운 대상으로 변경하기
+			Closest = i;
+		}
+	}
+
+	// 잡기에 성공했다면
+	if (IsGrabedRight)
+	{
+		// 물체 물리기능 비활성화
+		GrabbedObject = HitObj[Closest].GetComponent();
+		GrabbedObject->SetSimulatePhysics(false);
+		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 손에 붙여주자
+		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
+	}
 }
 
 void AMainPlayer::UnTryGrabLeft()
@@ -197,10 +298,9 @@ void AMainPlayer::UnTryGrabLeft()
 		return;
 	}
 
-
 	// 1. 잡지않은 상태로 전환
 	IsGrabedLeft = false;
-	// 2. 손에서 떼어주기
+	// 2. 손에서 떼어내기
 	GrabbedObject->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	// 3. 물리기능 활성화
 	GrabbedObject->SetSimulatePhysics(true);
@@ -209,55 +309,110 @@ void AMainPlayer::UnTryGrabLeft()
 	// 던지기
 	GrabbedObject->AddForce(ThrowDirection * MyThrowPower * GrabbedObject->GetMass());
 
-	// 회전시키기
-	GrabbedObject->AddTorqueInRadians(DeltaRotation.Euler() * MyThrowPower * GrabbedObject->GetMass());
+	// 회전 시키기
 	// 각속도 = (1 / dt) * dTheta(특정 축 기준 변위 각도 Axis, angle)
 	float Angle;
 	FVector Axis;
 	DeltaRotation.ToAxisAndAngle(Axis, Angle);
 	float dt = GetWorld()->DeltaTimeSeconds;
-	FVector AngularVelocity = (1 / dt) * Angle * Axis;
+	FVector AngularVelocity = (1.0f / dt) * Angle * Axis;
 	GrabbedObject->SetPhysicsAngularVelocityInRadians(AngularVelocity * TorquePower, true);
-	// 잡은 물체 참조 초기화
+
 	GrabbedObject = nullptr;
 }
 
 void AMainPlayer::UnTryGrabRight()
 {
+	if (IsGrabedRight == false)
+	{
+		return;
+	}
+
+	// 1. 잡지않은 상태로 전환
+	IsGrabedRight = false;
+	// 2. 손에서 떼어내기
+	GrabbedObject->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	// 3. 물리기능 활성화
+	GrabbedObject->SetSimulatePhysics(true);
+	// 4. 충돌기능 활성화
+	GrabbedObject->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// 던지기
+	GrabbedObject->AddForce(ThrowDirection * MyThrowPower * GrabbedObject->GetMass());
+
+	// 회전 시키기
+	// 각속도 = (1 / dt) * dTheta(특정 축 기준 변위 각도 Axis, angle)
+	float Angle;
+	FVector Axis;
+	DeltaRotation.ToAxisAndAngle(Axis, Angle);
+	float dt = GetWorld()->DeltaTimeSeconds;
+	FVector AngularVelocity = (1.0f / dt) * Angle * Axis;
+	GrabbedObject->SetPhysicsAngularVelocityInRadians(AngularVelocity * TorquePower, true);
+
+	GrabbedObject = nullptr;
 }
 
 void AMainPlayer::Grabbing()
 {
 	// 잡은 물체가 있다면
-	if (IsGrabedLeft == false)
+	if (IsGrabedLeft && IsGrabedRight == false)
 	{
 		return;
 	}
-	// ↓ 놓았을때 기능
-	// 던질 방향 업데이트
-	ThrowDirection = RightHand->GetComponentLocation() - PrevPos;
-	// 회전 방향 업데이트
+	else if (IsGrabedLeft == true && IsGrabedRight == false)
+	{
+		// 던질 방향 업데이트
+		ThrowDirection = LeftHand->GetComponentLocation() - PrevPos;
+		// 회전 방향 업데이트
+		DeltaRotation = LeftHand->GetComponentQuat() * PrevRot.Inverse();
+		// 이전 위치 업데이트
+		PrevPos = LeftHand->GetComponentLocation();
+		// 이전회전값 업데이트
+		PrevRot = LeftHand->GetComponentQuat();
+	}
+	else if (IsGrabedRight == true && IsGrabedLeft == false)
+	{
+		// 던질 방향 업데이트
+		ThrowDirection = RightHand->GetComponentLocation() - PrevPos;
+		// 회전 방향 업데이트
+		DeltaRotation = RightHand->GetComponentQuat() * PrevRot.Inverse();
+		// 이전 위치 업데이트
+		PrevPos = RightHand->GetComponentLocation();
+		// 이전회전값 업데이트
+		PrevRot = RightHand->GetComponentQuat();
+	}
+	else if(IsGrabedLeft && IsGrabedRight == true)
+	{
+		// 던질 방향 업데이트
+		ThrowDirection = LeftHand->GetComponentLocation() - PrevPos;
+		// 회전 방향 업데이트
+		DeltaRotation = LeftHand->GetComponentQuat() * PrevRot.Inverse();
+		// 이전 위치 업데이트
+		PrevPos = LeftHand->GetComponentLocation();
+		// 이전회전값 업데이트
+		PrevRot = LeftHand->GetComponentQuat();
+		// 던질 방향 업데이트
+		ThrowDirection = RightHand->GetComponentLocation() - PrevPos;
+		// 회전 방향 업데이트
+		DeltaRotation = RightHand->GetComponentQuat() * PrevRot.Inverse();
+		// 이전 위치 업데이트
+		PrevPos = RightHand->GetComponentLocation();
+		// 이전회전값 업데이트
+		PrevRot = RightHand->GetComponentQuat();
+	}
 	// 쿼터니언 공식
 	// Angle1 = Q1 , Angle2 = Q2
 	// Angle1 + Angle2 = Q1 * Q2
 	// -Angle1 = Q2.Inverse()
 	// Angle2 - Angle1 = Q2 * Q1.Inverse()
-	DeltaRotation = RightHand->GetComponentQuat() * PrevRot.Inverse();
-
-
-	// 이전 위치 업데이트
-	PrevPos = RightHand->GetComponentLocation();
-	// 이전회전값 업데이트
-	PrevRot = RightHand->GetComponentQuat();
 }
 
 void AMainPlayer::ReleaseUIInput()
 {
-// 	// UI 에 이벤트를 전달하고 싶다.
-// 	if (WidgetInteractionComp)
-// 	{
-// 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-// 		WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
-// 	}
+	// UI 에 이벤트를 전달하고 싶다.
+	if (WidgetInteractionComp)
+	{
+		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
+		WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
+	}
 }
 
