@@ -64,6 +64,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class USkeletalMeshComponent* RightHandMesh;
 
+	// 오른손 콜리전박스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
+	class UBoxComponent* RightHandBox;
+	// 왼손 콜리전박스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
+	class UBoxComponent* LeftHandBox;
+
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -72,7 +79,10 @@ public:
 		class UInputAction* IA_Grab_R;
 	// 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
-		float GrabRange = 100.0f;
+		float GrabRange = 50.0f;
+	// 잡을 최대 범위
+	UPROPERTY(EditDefaultsOnly, Category = "Grab")
+		float GrabMaxRange = 50.0f;
 	// 잡은 물체 기억
 	UPROPERTY()
 		class UPrimitiveComponent* GrabbedObject;
@@ -105,6 +115,28 @@ public:
 
 	// 릴리즈 상태로 되돌려놓기
 	void ReleaseUIInput();
+
+		// 원격잡기 모드가 활성화 되면 원격잡기 모드 사용하도록 하고싶다.
+	//필요속성 : 원격잡기 모드 여부, 거리, 이동속도
+	UPROPERTY(EditDefaultsOnly, Category="Grab")
+	bool IsRemoteGrab = true;
+	UPROPERTY(EditDefaultsOnly, Category="Grab")
+	float RemoteDistance = 2000;
+	UPROPERTY(EditDefaultsOnly, Category="Grab")
+	float RemoteMoveSpeed = 10;
+	// 검출범위
+	UPROPERTY(EditDefaultsOnly, Category="Grab")
+	float RemoteRadius = 20;
+	// 원거리 물체 이동을 위한 타이머
+	FTimerHandle GrabTimer;
+
+	void RemoteGrab();
+
+	// Remote Grab 시각화 처리할지 여부
+	UPROPERTY(EditDefaultsOnly, Category="Grab")
+	bool bDrawDebugRemoteGrab = true;
+	// 시각화 처리할 함수
+	void DrawDebugRemoteGrab();
 
 	//===========플레이어 정보===========//
 	// 플레이어 HP

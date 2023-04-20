@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
+#include <Components/BoxComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
 #include <MotionControllerComponent.h>
@@ -27,6 +28,7 @@ AMainPlayer::AMainPlayer()
 	LeftHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
 	LeftHand->SetupAttachment(RootComponent);
 	LeftHand->SetTrackingMotionSource(FName("Left"));
+
 	// 오른손
 	RightHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightHand"));
 	RightHand->SetupAttachment(RootComponent);
@@ -35,6 +37,17 @@ AMainPlayer::AMainPlayer()
 	// 왼손 스켈레탈 메시 설정
 	LeftHandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LeftHandMesh"));
 	LeftHandMesh->SetupAttachment(LeftHand);
+	// 왼손 콜리전박스
+	LeftHandBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollision"));
+	LeftHandBox->SetupAttachment(LeftHandMesh);
+	// 콜리전박스 크기 설정
+	LeftHandBox->SetBoxExtent(FVector(4, 4, 1));
+	// 콜리전박스 위치 설정
+	LeftHandBox->SetRelativeLocation(FVector(-0.4f, 4.5f, 0.22f));
+	LeftHandBox->SetCollisionProfileName(TEXT("BlockAll"));
+	LeftHandBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftHandBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftHandBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	// 스켈레탈 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> LHandMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_left.SKM_MannyXR_left'"));
 	if (LHandMesh.Succeeded())
@@ -151,17 +164,8 @@ void AMainPlayer::Move(const FInputActionValue& Values)
 	// 사용자의 입력에따라 앞뒤좌우로 이동하고 싶다.
 	// 1. 사용자의 입력에 따라
 	FVector2D Axis = Values.Get<FVector2D>();
-	UE_LOG(LogTemp, Warning, TEXT("move"));
 	AddMovementInput(GetActorForwardVector(), Axis.X);
 	AddMovementInput(GetActorRightVector(), Axis.Y);
-	// 2. 앞뒤좌우라는 방향이 필요.
-// 	FVector Dir(Axis.X, Axis.Y, 0);
-// 	// 3. 이동하고싶다.
-// 	// P = P0 + vt
-// 	FVector P0 = GetActorLocation();
-// 	FVector vt = Dir * PlayerSpeed * GetWorld()->DeltaTimeSeconds;
-// 	FVector P = P0 + vt;
-// 	SetActorLocation(P);
 }
 
 void AMainPlayer::Turn(const FInputActionValue& Values)
@@ -185,9 +189,15 @@ void AMainPlayer::TryGrabLeft()
 {
 	// 중심점
 	FVector Center = LeftHand->GetComponentLocation();
-	// 충돌체크(구충돌)
 
-	// 충돌한 물체를 기억할 배열
+	// 	// 충돌한 물체를 기억할 배열 (백업)
+	// 	TArray<FOverlapResult> HitObj;
+	// 	FCollisionQueryParams params;
+	// 	params.AddIgnoredActor(this);
+	// 	params.AddIgnoredComponent(LeftHand);
+	// 	bool bHit = GetWorld()->OverlapMultiByChannel(HitObj, Center, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(GrabRange), params);
+
+		// 충돌한 물체를 기억할 배열
 	TArray<FOverlapResult> HitObj;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
@@ -238,10 +248,14 @@ void AMainPlayer::TryGrabLeft()
 
 void AMainPlayer::TryGrabRight()
 {
+	if (IsRemoteGrab)
+	{
+		RemoteGrab();
+		return;
+	}
 	// 중심점
 	FVector Center = RightHand->GetComponentLocation();
-	// 충돌체크(구충돌)
-	DrawDebugSphere(GetWorld(), Center, 100.0f, 30, FColor::Red, false, 2.0f);
+
 	// 충돌한 물체를 기억할 배열
 	TArray<FOverlapResult> HitObj;
 	FCollisionQueryParams params;
@@ -413,6 +427,92 @@ void AMainPlayer::ReleaseUIInput()
 	{
 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
 		WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
+	}
+}
+
+void AMainPlayer::RemoteGrab()
+{
+	// 충돌체크(구충돌)
+	// 충돌한 물체들 기록할 배열
+	// 충돌 질의 작성
+	FCollisionQueryParams Param;
+	Param.AddIgnoredActor(this);
+	Param.AddIgnoredComponent(RightAim);
+	FVector StartPos = RightAim->GetComponentLocation();
+	FVector EndPos = StartPos + RightAim->GetForwardVector() * RemoteDistance;
+
+	FHitResult HitInfo;
+	bool bHit = GetWorld()->SweepSingleByChannel(HitInfo, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(RemoteRadius), Param);
+
+	// 충돌이 되면 잡아당기기 애니메이션 실행
+	if (bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
+	{
+		// 잡았다
+		IsGrabedRight = true;
+		// 잡은 물체 할당
+		GrabbedObject = HitInfo.GetComponent();
+		// -> 물체 물리기능 비활성화
+		GrabbedObject->SetSimulatePhysics(false);
+		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// -> 손에 붙여주자
+		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
+
+		// 원거리 물체가 손으로 끌려오도록 처리
+		GetWorld()->GetTimerManager().SetTimer(GrabTimer, FTimerDelegate::CreateLambda(
+			[this]()->void
+			{
+				// 이동 중간에 사용자가 놔버리면
+				if (GrabbedObject == nullptr)
+				{
+					GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
+					return;
+				}
+		//  물체가 -> 손 위치로 도착
+		FVector Pos = GrabbedObject->GetComponentLocation();
+		FVector TargetPos = RightHand->GetComponentLocation();
+		Pos = FMath::Lerp<FVector>(Pos, TargetPos, RemoteMoveSpeed * GetWorld()->DeltaTimeSeconds);
+		GrabbedObject->SetWorldLocation(Pos);
+
+		float Distance = FVector::Dist(Pos, TargetPos);
+		// 거의 가까워졌다면
+		if (Distance < 10)
+		{
+			// 이동 중단하기
+			GrabbedObject->SetWorldLocation(TargetPos);
+
+			PrevPos = RightHand->GetComponentLocation();
+			PrevRot = RightHand->GetComponentQuat();
+
+			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
+		}
+			}
+		), 0.02f, true);
+	}
+}
+
+void AMainPlayer::DrawDebugRemoteGrab()
+{
+	// 시각화 켜져있는지 여부 확인, 원거리물체 잡기 활성화 여부
+	if (bDrawDebugRemoteGrab == false || IsRemoteGrab == false)
+	{
+		return;
+	}
+
+	FCollisionQueryParams Param;
+	Param.AddIgnoredActor(this);
+	Param.AddIgnoredComponent(RightAim);
+	FVector StartPos = RightAim->GetComponentLocation();
+	FVector EndPos = StartPos + RightAim->GetForwardVector() * RemoteDistance;
+
+	FHitResult HitInfo;
+	bool bHit = GetWorld()->SweepSingleByChannel(HitInfo, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(RemoteRadius), Param);
+
+	// 그리기
+	DrawDebugSphere(GetWorld(), StartPos, RemoteRadius, 10, FColor::Yellow);
+	if (bHit)
+	{
+		DrawDebugSphere(GetWorld(), HitInfo.Location, RemoteRadius, 10, FColor::Yellow);
 	}
 }
 
