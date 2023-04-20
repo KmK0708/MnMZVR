@@ -164,17 +164,8 @@ void AMainPlayer::Move(const FInputActionValue& Values)
 	// 사용자의 입력에따라 앞뒤좌우로 이동하고 싶다.
 	// 1. 사용자의 입력에 따라
 	FVector2D Axis = Values.Get<FVector2D>();
-	UE_LOG(LogTemp, Warning, TEXT("move"));
 	AddMovementInput(GetActorForwardVector(), Axis.X);
 	AddMovementInput(GetActorRightVector(), Axis.Y);
-	// 2. 앞뒤좌우라는 방향이 필요.
-// 	FVector Dir(Axis.X, Axis.Y, 0);
-// 	// 3. 이동하고싶다.
-// 	// P = P0 + vt
-// 	FVector P0 = GetActorLocation();
-// 	FVector vt = Dir * PlayerSpeed * GetWorld()->DeltaTimeSeconds;
-// 	FVector P = P0 + vt;
-// 	SetActorLocation(P);
 }
 
 void AMainPlayer::Turn(const FInputActionValue& Values)
