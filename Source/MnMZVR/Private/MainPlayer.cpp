@@ -119,6 +119,9 @@ void AMainPlayer::BeginPlay()
 		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
 		PlayerCamera->bUsePawnControlRotation = false;
 	}
+
+	// 플레이어 체력은 플레이어 맥스 체력과 동일
+	PlayerHP = PlayerMaxHP;
 }
 
 // Called every frame
