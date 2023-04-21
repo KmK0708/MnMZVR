@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "EnemyFSM.h"
 #include "Enemy_Skeleton.generated.h"
 
 UCLASS()
@@ -25,4 +26,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
+	//적 ai 관리 컴포넌트 클래스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=FSMComponent)
+	class UEnemyFSM* fsm;
+
+
 };

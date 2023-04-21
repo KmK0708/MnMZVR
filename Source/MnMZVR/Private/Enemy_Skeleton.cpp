@@ -2,7 +2,7 @@
 
 
 #include "Enemy_Skeleton.h"
-
+#include "EnemyFSM.h"
 // Sets default values
 AEnemy_Skeleton::AEnemy_Skeleton()
 {
@@ -24,6 +24,9 @@ AEnemy_Skeleton::AEnemy_Skeleton()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("can't find mesh"));
 	}
+
+	// EnemyFSM 컴포넌트 추가
+	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 
 // Called when the game starts or when spawned
