@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	// The mesh of the weapon
+	// 무기메시
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* WeaponMesh;
 	// 공격이 됐는지 판정박스
@@ -32,16 +32,45 @@ public:
 	class UBoxComponent* AttackBox;
 	// Damage of the weapon
 	UPROPERTY(EditAnywhere)
-	float MeleeDamage;
+	float MeleeDamage = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	float MinSpeedForDamage = 2.0f;
+	UPROPERTY(EditAnywhere)
+	float MaxSpeedForDamage = 10.0f;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float WeaponVelocity;
+
 	// 공격함수
 	UFUNCTION()
-	void Attack();
+	void Attack(float AttackSpeed);
+	// 공격끝
+	UFUNCTION()
+	void EndAttack();
+
 	// 오버랩
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// 공격 쿨타임
-	float AttackCoolTime;
+	UFUNCTION(BlueprintCallable, Category = "MeleeWeapon")
+	bool IsSwingAboveSpeed(float MinSwingSpeed);
 
+
+	UPROPERTY()
+	class ATestEnemy* Enemy;
+
+	// MainPlayer
+	UPROPERTY()
+	class AMainPlayer* MainPlayer;
+protected:
+
+	UPROPERTY()
+	FVector prevPos;
+
+	UPROPERTY(BlueprintReadOnly)
+	float WeaponSpeed;
+
+	UFUNCTION()
+	float GetWeaponSpeed();
 };

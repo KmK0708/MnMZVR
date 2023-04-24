@@ -9,6 +9,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "MainPlayer.h"
 #include "TestEnemy.h"
+// 게임플레이스테틱
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMeleeWeaponBase::AMeleeWeaponBase()
@@ -17,7 +19,7 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
-	RootComponent = WeaponMesh;
+	WeaponMesh->SetupAttachment(RootComponent);
 	// 물리기능 활성화
 	WeaponMesh->SetSimulatePhysics(true);
 	// 메쉬 콜리전 프리셋 WeaponPreset
@@ -28,7 +30,10 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	AttackBox->SetupAttachment(RootComponent);
 	// AttackBox의 콜리전 프리셋 AttackBoxPreset
 	AttackBox->SetCollisionProfileName(TEXT("AttackBoxPreset"));
-
+	AttackBox->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Overlap);
+	AttackBox->SetGenerateOverlapEvents(false);
+	// player 캐스팅
+	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called when the game starts or when spawned
@@ -36,6 +41,7 @@ void AMeleeWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	prevPos = WeaponMesh->GetComponentLocation();
 	// 공격이 됐는지 판정박스
 	AttackBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlap);
 }
@@ -44,44 +50,59 @@ void AMeleeWeaponBase::BeginPlay()
 void AMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	WeaponVelocity = GetVelocity().Size();
+}
+
+void AMeleeWeaponBase::Attack(float AttackSpeed)
+{
+	if (Enemy != nullptr)
+	{
+		
+		float ModifiedDamage = MeleeDamage;
+		Enemy->AddHealth(-ModifiedDamage);
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("Enemy Health : %f"), Enemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
+		if (Enemy->EnemyHealth <= 0.f)
+		{
+			Enemy->Destroy();
+			// Enemy is dead, handle death event
+			// ...
+		}
+	}
 
 }
 
-void AMeleeWeaponBase::Attack()
+void AMeleeWeaponBase::EndAttack()
 {
-	// 모션 컨트롤러 휘두르는 속도에 따른 공격기능 활성화
-	if (WeaponMesh->GetPhysicsAngularVelocityInDegrees().Size() > 1000.0f)
-	{
-		// OnOverlap 함수를 실행시킨다
-		AttackBox->SetGenerateOverlapEvents(true);
-	}
-	else
-	{
-		// OnOverlap 함수를 실행시키지 않는다
-		AttackBox->SetGenerateOverlapEvents(false);
-	}
+	AttackBox->SetGenerateOverlapEvents(false); // 공격이 안됨
+	Enemy = nullptr;
 }
 
 void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != nullptr)
+	if (AttackBox->IsOverlappingComponent(OtherComp))
 	{
 		ATestEnemy* TestEnemy = Cast<ATestEnemy>(OtherActor);
 		if (TestEnemy != nullptr)
 		{
-			// Reduce the enemy's health
-			if(WeaponMesh->GetPhysicsAngularVelocityInDegrees().Size() > 5.0)
-			{
-				TestEnemy->AddHealth(-MeleeDamage);
-				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("Enemy Health : %f"), TestEnemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
-			}
-			else 
-			{
-				TestEnemy->AddHealth(0);
-				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("Enemy Health : %f"), TestEnemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
-			}
-			// Check the print string to see if Enemy's health is declining
+			Enemy = TestEnemy;
+			AttackBox->SetGenerateOverlapEvents(true); // 공격이 됨
+			Attack(WeaponSpeed);
 		}
 	}
+}
+
+bool AMeleeWeaponBase::IsSwingAboveSpeed(float MinSwingSpeed)
+{
+	return WeaponVelocity > MinSwingSpeed;
+}
+
+
+float AMeleeWeaponBase::GetWeaponSpeed()
+{
+	FVector CurrentPos = WeaponMesh->GetComponentLocation();
+	FVector Velocity = (CurrentPos - prevPos) / GetWorld()->DeltaTimeSeconds;
+	float Speed = Velocity.Size();
+	prevPos = CurrentPos;
+	return Speed;
 }
 

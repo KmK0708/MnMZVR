@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
+#include "MeleeWeaponBase.h"
 #include <Components/BoxComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
@@ -80,6 +81,9 @@ AMainPlayer::AMainPlayer()
 
 //  	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
 //  	WidgetInteractionComp->SetupAttachment(RightAim);
+
+	AttackSpeedThreshold = 1000.0f;
+	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
 }
 
 // Called when the game starts or when spawned
@@ -119,6 +123,10 @@ void AMainPlayer::BeginPlay()
 		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
 		PlayerCamera->bUsePawnControlRotation = false;
 	}
+
+	// 플레이어 체력은 플레이어 맥스 체력과 동일
+	PlayerHP = PlayerMaxHP;
+
 }
 
 // Called every frame
@@ -182,6 +190,29 @@ void AMainPlayer::OnClick(const FInputActionValue& Values)
 	{
 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
 		WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+	}
+}
+
+void AMainPlayer::CheckWeaponSpeed()
+{
+	UMotionControllerComponent* Hand = nullptr;
+	if (Weapon->GetAttachParentActor() == LeftHand->GetAttachmentRootActor())
+	{
+		Hand = LeftHand;
+	}
+	else if (Weapon->GetAttachParentActor() == RightHand->GetAttachmentRootActor())
+	{
+		Hand = RightHand;
+	}
+
+	if (Hand != nullptr)
+	{
+		// WeaponSpeed는 hand 의 속도를 가져온다.
+		float WeaponSpeed = Hand->GetPhysicsLinearVelocity().Size();
+		if (WeaponSpeed > AttackSpeedThreshold)
+		{
+			Weapon->Attack(WeaponSpeed);
+		}
 	}
 }
 

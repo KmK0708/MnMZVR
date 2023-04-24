@@ -106,6 +106,12 @@ public:
 	// 회전빠르기
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	float TorquePower = 1;
+	// 공격 휘두르기 한계점
+	UPROPERTY(EditAnywhere)
+    float AttackSpeedThreshold;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    class AMeleeWeaponBase* Weapon;
 
 	//=============위젯==============//
 	protected:
@@ -165,6 +171,9 @@ public:
 	void Turn(const FInputActionValue& Values);
 	// 클릭 함수
 	void OnClick(const FInputActionValue& Values);
+	// 휘두르는 속도 체크
+	UFUNCTION()
+	void CheckWeaponSpeed();
 
 protected:
 // 플레이어 카메라
