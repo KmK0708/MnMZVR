@@ -9,6 +9,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "MainPlayer.h"
 #include "TestEnemy.h"
+// 게임플레이스테틱
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMeleeWeaponBase::AMeleeWeaponBase()
@@ -28,7 +30,10 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	AttackBox->SetupAttachment(RootComponent);
 	// AttackBox의 콜리전 프리셋 AttackBoxPreset
 	AttackBox->SetCollisionProfileName(TEXT("AttackBoxPreset"));
-
+	AttackBox->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Overlap);
+	AttackBox->SetGenerateOverlapEvents(false);
+	// player 캐스팅
+	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called when the game starts or when spawned
@@ -45,19 +50,23 @@ void AMeleeWeaponBase::BeginPlay()
 void AMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	WeaponVelocity = GetVelocity().Size();
 }
 
-void AMeleeWeaponBase::Attack()
+void AMeleeWeaponBase::Attack(float AttackSpeed)
 {
-	float Weaponspeed = GetWeaponSpeed();
-
-
-	if (Enemy != nullptr && WeaponSpeed > MinSpeedForDamage)
+	if (Enemy != nullptr)
 	{
-		float DamageMultiplier = FMath::Clamp((WeaponSpeed - MinSpeedForDamage) / (MaxSpeedForDamage - MinSpeedForDamage), 0.0f, 1.0f);
-		float DamageAmount = MeleeDamage * DamageMultiplier;
-		Enemy->AddHealth(-DamageAmount);
+		
+		float ModifiedDamage = MeleeDamage;
+		Enemy->AddHealth(-ModifiedDamage);
 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("Enemy Health : %f"), Enemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
+		if (Enemy->EnemyHealth <= 0.f)
+		{
+			Enemy->Destroy();
+			// Enemy is dead, handle death event
+			// ...
+		}
 	}
 
 }
@@ -77,9 +86,14 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		{
 			Enemy = TestEnemy;
 			AttackBox->SetGenerateOverlapEvents(true); // 공격이 됨
-			Attack();
+			Attack(WeaponSpeed);
 		}
 	}
+}
+
+bool AMeleeWeaponBase::IsSwingAboveSpeed(float MinSwingSpeed)
+{
+	return WeaponVelocity > MinSwingSpeed;
 }
 
 
