@@ -51,9 +51,10 @@ void AMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	WeaponVelocity = GetVelocity().Size();
+	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponVelocity), true, FVector2D(3.0f, 3.0f));
 }
 
-void AMeleeWeaponBase::Attack(float AttackSpeed)
+void AMeleeWeaponBase::Attack()
 {
 	if (Enemy != nullptr)
 	{
@@ -86,14 +87,9 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		{
 			Enemy = TestEnemy;
 			AttackBox->SetGenerateOverlapEvents(true); // °ø°ÝÀÌ µÊ
-			Attack(WeaponSpeed);
+			Attack();
 		}
 	}
-}
-
-bool AMeleeWeaponBase::IsSwingAboveSpeed(float MinSwingSpeed)
-{
-	return WeaponVelocity > MinSwingSpeed;
 }
 
 

@@ -82,7 +82,7 @@ AMainPlayer::AMainPlayer()
 //  	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
 //  	WidgetInteractionComp->SetupAttachment(RightAim);
 
-	AttackSpeedThreshold = 1000.0f;
+	MinSwingSpeed = 500.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
 }
 
@@ -146,6 +146,28 @@ void AMainPlayer::Tick(float DeltaTime)
 
 	// Grabbing
 	Grabbing();
+
+	if (GrabbedObject)
+	{
+		FVector CurrentPosition = GrabbedObject->GetComponentLocation();
+		FVector Velocity = (CurrentPosition - LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
+	
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), Velocity.Size()), true, FVector2D(3.0f, 3.0f));
+		// Now you can use the velocity value to enable or disable the weapon attack function based on the player's swing speed.
+		// For example:
+		if (Velocity.Size() > MinSwingSpeed)
+		{
+			// Weapon 의 어택함수
+			Weapon->Attack();
+		}
+		else
+		{
+			Weapon->EndAttack();
+		}
+
+		LastGrabbedObjectPosition = CurrentPosition;
+	}
+
 }
 
 // Called to bind functionality to input
@@ -193,40 +215,27 @@ void AMainPlayer::OnClick(const FInputActionValue& Values)
 	}
 }
 
-void AMainPlayer::CheckWeaponSpeed()
+void AMainPlayer::StartSwingingMeleeWeapon()
 {
-	UMotionControllerComponent* Hand = nullptr;
-	if (Weapon->GetAttachParentActor() == LeftHand->GetAttachmentRootActor())
+	if (Weapon)
 	{
-		Hand = LeftHand;
-	}
-	else if (Weapon->GetAttachParentActor() == RightHand->GetAttachmentRootActor())
-	{
-		Hand = RightHand;
-	}
-
-	if (Hand != nullptr)
-	{
-		// WeaponSpeed는 hand 의 속도를 가져온다.
-		float WeaponSpeed = Hand->GetPhysicsLinearVelocity().Size();
-		if (WeaponSpeed > AttackSpeedThreshold)
-		{
-			Weapon->Attack(WeaponSpeed);
-		}
+		bIsSwingingMeleeWeapon = true;
 	}
 }
+
+void AMainPlayer::StopSwingingMeleeWeapon()
+{
+	if (Weapon)
+	{
+		bIsSwingingMeleeWeapon = false;
+	}
+}
+
 
 void AMainPlayer::TryGrabLeft()
 {
 	// 중심점
 	FVector Center = LeftHand->GetComponentLocation();
-
-	// 	// 충돌한 물체를 기억할 배열 (백업)
-	// 	TArray<FOverlapResult> HitObj;
-	// 	FCollisionQueryParams params;
-	// 	params.AddIgnoredActor(this);
-	// 	params.AddIgnoredComponent(LeftHand);
-	// 	bool bHit = GetWorld()->OverlapMultiByChannel(HitObj, Center, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(GrabRange), params);
 
 		// 충돌한 물체를 기억할 배열
 	TArray<FOverlapResult> HitObj;
@@ -270,10 +279,12 @@ void AMainPlayer::TryGrabLeft()
 	{
 		// 물체 물리기능 비활성화
 		GrabbedObject = HitObj[Closest].GetComponent();
+		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
+		
 	}
 }
 

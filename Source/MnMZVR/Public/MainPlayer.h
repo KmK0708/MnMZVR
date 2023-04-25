@@ -107,11 +107,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	float TorquePower = 1;
 	// 공격 휘두르기 한계점
-	UPROPERTY(EditAnywhere)
-    float AttackSpeedThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeleeWeapon")
+	float MinSwingSpeed;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     class AMeleeWeaponBase* Weapon;
+
+	UPROPERTY()
+	FVector LastGrabbedObjectPosition;
 
 	//=============위젯==============//
 	protected:
@@ -171,9 +174,13 @@ public:
 	void Turn(const FInputActionValue& Values);
 	// 클릭 함수
 	void OnClick(const FInputActionValue& Values);
-	// 휘두르는 속도 체크
-	UFUNCTION()
-	void CheckWeaponSpeed();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StartSwingingMeleeWeapon();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StopSwingingMeleeWeapon();
+
+	bool bIsSwingingMeleeWeapon;
 
 protected:
 // 플레이어 카메라

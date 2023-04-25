@@ -34,17 +34,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MeleeDamage = 10.0f;
 
-	UPROPERTY(EditAnywhere)
-	float MinSpeedForDamage = 2.0f;
-	UPROPERTY(EditAnywhere)
-	float MaxSpeedForDamage = 10.0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float WeaponVelocity;
 
 	// 공격함수
 	UFUNCTION()
-	void Attack(float AttackSpeed);
+	void Attack();
 	// 공격끝
 	UFUNCTION()
 	void EndAttack();
@@ -53,8 +49,6 @@ public:
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable, Category = "MeleeWeapon")
-	bool IsSwingAboveSpeed(float MinSwingSpeed);
 
 
 	UPROPERTY()
@@ -68,8 +62,6 @@ protected:
 	UPROPERTY()
 	FVector prevPos;
 
-	UPROPERTY(BlueprintReadOnly)
-	float WeaponSpeed;
 
 	UFUNCTION()
 	float GetWeaponSpeed();
