@@ -4,16 +4,13 @@
 #include "EnemyFSM.h"
 #include "MainPlayer.h"
 #include "Enemy_Skeleton.h"
+#include "EnemyAnim.h"
 #include <Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -28,9 +25,9 @@ void UEnemyFSM::BeginPlay()
 	//소유 객체 가져오기
 	me = Cast<AEnemy_Skeleton>(GetOwner());
 	// UEnemyAnim* 할당
-	/*anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
+	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
 
-	GameMode = Cast<MnMZGameModeBase>(GetWorld()->GetAuthGameMode());*/
+	//GameMode = Cast<MnMZGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	// Ai 컨트롤
 	//ai = Cast<AAIController>(me->GetController());
@@ -79,7 +76,7 @@ void UEnemyFSM::IdleState()
 		// 경과 시간 초기화
 		currentTime = 0;
 		// 애니메이션 상태 동기화
-		//anim->state = mState;
+		anim->animState = mState;
 	}
 }
 //이동상태
@@ -99,11 +96,11 @@ void UEnemyFSM::MoveState()
 		//2. 공격 상태로 전환하고 싶다.
 		mState = EEnemystate::Attack;
 		// 애니메이션 상태 동기화
-		//anim->state = mState;
+		anim->animState = mState;
 		// 공격 애니메이션 재생 활성화
-		//anim->bAttackPlay = true;
+		anim->bAttackPlay = true;
 		// 공격 상태 전환시 대기시간이 바로 끝나도록 처리
-		//currentTime = attackDelayTime;
+		currentTime = attackDelayTime;
 	}
 }
 //공격상태
@@ -111,12 +108,12 @@ void UEnemyFSM::AttackState()
 {
 	// 목표 : 일정 시간에 한 번씩 공격하고 싶다.
 		// 1. 시간이 흘러야 한다.
-		currentTime += GetWorld()->DeltaTimeSeconds;
+		currentTime += GetWorld()->DeltaTimeSeconds;		
 	// 2. 공격 시간이 됐으니까
 	if (currentTime > attackDelayTime)
 	{
 		// 3. 공격하고 싶다.
-		//UE_LOG(LogTemp, Warning, TEXT("Attack"));
+		UE_LOG(LogTemp, Warning, TEXT("Attack"));
 		/*GameMode->ShowPlayerHitWidget();
 		target->HP -= 5;
 		if (target->HP <= 0)
@@ -132,7 +129,7 @@ void UEnemyFSM::AttackState()
 
 		// 경과 시간 초기화
 		currentTime = 0;
-		//anim->bAttackPlay = true;
+		anim->bAttackPlay = true;
 	}
 	// 목표 : 타깃이 공격 범위를 벗아나면 상태를 이동으로 전환하고 싶다.
 	// 1. 타깃과의 거리가 필요하다.
@@ -143,7 +140,7 @@ void UEnemyFSM::AttackState()
 		// 3. 상태를 이동으로 전환하고 싶다.
 		mState = EEnemystate::Move;
 		// 애니메이션 상태 동기화
-		//anim->state = mState;
+		anim->animState = mState;
 	}
 }
 //피격상태
@@ -158,8 +155,8 @@ void UEnemyFSM::DamageState()
 		mState = EEnemystate::Idle;
 		// 경과 시간 초기화
 		currentTime = 0;
-	//	// 애니메이션 상태 동기화
-	//	anim->state = mState;
+		// 애니메이션 상태 동기화
+		anim->animState = mState;
 	}
 }
 //죽음상태
@@ -214,5 +211,7 @@ void UEnemyFSM::OnDamageProcess(int32 damageValue)
 		//isdying = true;
 
 	}
+	//애니메이션 상태 동기화
+	anim->animState = mState;
 }
 
