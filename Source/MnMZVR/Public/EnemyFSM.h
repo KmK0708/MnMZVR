@@ -84,4 +84,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
 	float damageDelayTime = 1.0f;
 
+	// 사용중인 애니메이션 블루프린트
+	UPROPERTY()
+	class UEnemyAnim* anim;
 };

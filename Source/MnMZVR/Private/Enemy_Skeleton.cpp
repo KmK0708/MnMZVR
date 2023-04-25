@@ -27,6 +27,14 @@ AEnemy_Skeleton::AEnemy_Skeleton()
 
 	// EnemyFSM 컴포넌트 추가
 	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
+
+	// 애니메이션
+	ConstructorHelpers::FClassFinder<UAnimInstance> tempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/LJC/BP/ABP_Skeleton.ABP_Skeleton_C'"));
+	// 애니메이션 블루프린트 할당하기
+	if (tempAnim.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(tempAnim.Class);
+	}
 }
 
 // Called when the game starts or when spawned
