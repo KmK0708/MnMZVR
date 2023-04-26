@@ -82,7 +82,7 @@ AMainPlayer::AMainPlayer()
 //  	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
 //  	WidgetInteractionComp->SetupAttachment(RightAim);
 
-	MinSwingSpeed = 500.0f;
+	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
 }
 
@@ -147,25 +147,15 @@ void AMainPlayer::Tick(float DeltaTime)
 	// Grabbing
 	Grabbing();
 
-	if (GrabbedObject)
+	if (GrabbedObject && IsWeapon == true)
 	{
 		FVector CurrentPosition = GrabbedObject->GetComponentLocation();
 		FVector Velocity = (CurrentPosition - LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
-	
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), Velocity.Size()), true, FVector2D(3.0f, 3.0f));
-		// Now you can use the velocity value to enable or disable the weapon attack function based on the player's swing speed.
-		// For example:
-		if (Velocity.Size() > MinSwingSpeed)
-		{
-			// Weapon 의 어택함수
-			Weapon->Attack();
-		}
-		else
-		{
-			Weapon->EndAttack();
-		}
-
+		CurrentGrabbedObjectVelocity = Velocity.Size();
 		LastGrabbedObjectPosition = CurrentPosition;
+	
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
+
 	}
 
 }
@@ -277,15 +267,32 @@ void AMainPlayer::TryGrabLeft()
 	// 잡기에 성공했다면
 	if (IsGrabedLeft)
 	{
+		
 		// 물체 물리기능 비활성화
 		GrabbedObject = HitObj[Closest].GetComponent();
 		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
+		if (Weapon)
+		{
+			IsWeapon = true;
+		}
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
 		
 	}
+
+// 	// 잡은게 무기라면 무기를 잡은것으로 처리
+// 	if (HitObj[Closest].GetActor()->ActorHasTag("Weapon"))
+// 	{
+// 		IsWeapon = true;
+// 	}
+// 	else
+// 	{
+// 		IsWeapon = false;
+// 	}
 }
 
 void AMainPlayer::TryGrabRight()
@@ -340,6 +347,7 @@ void AMainPlayer::TryGrabRight()
 	{
 		// 물체 물리기능 비활성화
 		GrabbedObject = HitObj[Closest].GetComponent();
+		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		// 손에 붙여주자

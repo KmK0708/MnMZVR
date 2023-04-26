@@ -32,7 +32,7 @@ public:
 	class UBoxComponent* AttackBox;
 	// Damage of the weapon
 	UPROPERTY(EditAnywhere)
-	float MeleeDamage = 10.0f;
+	float MeleeDamage = 100.0f;
 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")

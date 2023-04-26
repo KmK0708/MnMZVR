@@ -85,11 +85,15 @@ public:
 		float GrabMaxRange = 50.0f;
 	// 잡은 물체 기억
 	UPROPERTY()
-		class UPrimitiveComponent* GrabbedObject;
+	class UPrimitiveComponent* GrabbedObject;
+	
 	//왼잡 bool 변수
 	bool IsGrabedLeft = false;
 	//오잡 bool 변수
 	bool IsGrabedRight = false;
+	
+	// 무기 bool 변수
+	bool IsWeapon = false;
 
 	// 던지면 원하는 방향으로 날아가도록 하고싶다.
 	// 필요속성 : 던질 힘, 던질 방향, 직전위치
@@ -116,6 +120,8 @@ public:
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
 
+
+	float CurrentGrabbedObjectVelocity;
 	//=============위젯==============//
 	protected:
 	// 위젯 관련 속성
