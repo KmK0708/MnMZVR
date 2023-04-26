@@ -174,10 +174,11 @@ void UEnemyFSM::DieState()
 void UEnemyFSM::OnDamageProcess(int32 damageValue)
 {
 
-	me->Destroy();
+	//me->Destroy();
 
 	// 체력 감소
-	hp -= damageValue;
+	//hp -= damageValue;
+	hp--;
 	// 만약 체력이 남아있다면
 	if (hp > 0)
 	{
@@ -185,12 +186,10 @@ void UEnemyFSM::OnDamageProcess(int32 damageValue)
 		mState = EEnemystate::Damage;
 
 		currentTime = 0;
-		//// 피격 애니메이션 재생
-		//int32 index = FMath::RandRange(0, 1);
-		//FString sectionName = FString::Printf(TEXT("Damage%d"), 0);
-		//anim->PlayDamageAnim(FName(*sectionName));
-
-
+		// 피격 애니메이션 재생
+		int32 index = FMath::RandRange(0, 1);
+		FString sectionName = FString::Printf(TEXT("Damage%d"), 0);
+		anim->PlayDamageAnim(FName(*sectionName));
 	}
 	// 그렇지 않다면
 	else
