@@ -35,10 +35,10 @@ public:
 
 	// 체력
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemySettings")
-		float EnemyHealth = 1000.0f;
+		float EnemyHealth = 500.0f;
 	// 최대체력
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemySettings")
-	float EnemyMaxHealth = 1000.0f;
+	float EnemyMaxHealth = 500.0f;
 
 	// 죽었을떄.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemySettings")

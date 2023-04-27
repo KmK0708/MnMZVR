@@ -120,6 +120,13 @@ public:
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
 
+	// 손 위치보정
+	UPROPERTY(EditDefaultsOnly, Category = "Grab")
+	FVector HandOffset = FVector(0, 0, 0);
+
+	// 무기회전값
+	UPROPERTY(EditDefaultsOnly, Category = "Grab")
+	FRotator WeaponRotation = FRotator(0, 0, 0);
 
 	float CurrentGrabbedObjectVelocity;
 	//=============위젯==============//
