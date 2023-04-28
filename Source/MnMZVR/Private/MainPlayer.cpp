@@ -147,10 +147,6 @@ void AMainPlayer::Tick(float DeltaTime)
 	// Grabbing
 	Grabbing();
 
-	if (!IsWeapon)
-	{
-		return;
-	}
 	if (GrabbedObject && IsWeapon == true)
 	{
 		FVector CurrentPosition = GrabbedObject->GetComponentLocation();
@@ -278,17 +274,11 @@ void AMainPlayer::TryGrabLeft()
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		// 만약 잡은게 Weapon 이라면
-		if (GrabbedObject->GetOwner()->ActorHasTag("Weapon"))
+		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
+		if (Weapon)
 		{
-			// 무기를 잡은것으로 처리
 			IsWeapon = true;
 		}
-		else
-		{
-			IsWeapon = false;
-		}
-
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
 		
@@ -360,17 +350,6 @@ void AMainPlayer::TryGrabRight()
 		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		// 만약 잡은게 Weapon 이라면
-		if (GrabbedObject->GetOwner()->ActorHasTag("Weapon"))
-		{
-			// 무기를 잡은것으로 처리
-			IsWeapon = true;
-		}
-		else
-		{
-			IsWeapon = false;
-		}
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
 	}
@@ -541,7 +520,7 @@ void AMainPlayer::RemoteGrab()
 				}
 		//  물체가 -> 손 위치로 도착
 		FVector Pos = GrabbedObject->GetComponentLocation();
-		FVector TargetPos = RightHandMesh->GetComponentLocation() + HandOffset;
+		FVector TargetPos = RightHand->GetComponentLocation();
 		Pos = FMath::Lerp<FVector>(Pos, TargetPos, RemoteMoveSpeed * GetWorld()->DeltaTimeSeconds);
 		GrabbedObject->SetWorldLocation(Pos);
 
@@ -552,8 +531,8 @@ void AMainPlayer::RemoteGrab()
 			// 이동 중단하기
 			GrabbedObject->SetWorldLocation(TargetPos);
 
-			PrevPos = RightHandMesh->GetComponentLocation();
-			PrevRot = RightHandMesh->GetComponentQuat();
+			PrevPos = RightHand->GetComponentLocation();
+			PrevRot = RightHand->GetComponentQuat();
 
 			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
 		}
