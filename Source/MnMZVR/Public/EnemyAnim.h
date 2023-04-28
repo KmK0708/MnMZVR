@@ -31,7 +31,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category=FSMEvent)
 	void PlayDamageAnim(FName sectionName);
 
-	//// 죽음상태 애니메이션 종료여부
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	//bool bDieDone = false;
+	// 죽음상태 애니메이션 종료여부
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
+	bool bDieDone = false;
 };
