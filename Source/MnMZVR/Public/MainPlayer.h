@@ -120,6 +120,8 @@ public:
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
 
+	UPROPERTY()
+    class UWeaponInvenComp* WeaponInvenComp;
 
 	float CurrentGrabbedObjectVelocity;
 	//=============À§Á¬==============//

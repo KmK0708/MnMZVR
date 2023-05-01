@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "MeleeWeaponBase.h"
+#include "WeaponInvenComp.h"
 #include <Components/BoxComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
@@ -84,6 +85,10 @@ AMainPlayer::AMainPlayer()
 
 	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
+	// Create the weapon inventory component
+	WeaponInvenComp = CreateDefaultSubobject<UWeaponInvenComp>(TEXT("WeaponInvenComp"));
+	// Attach the component to the root component of the character
+	//WeaponInvenComp->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
