@@ -57,6 +57,9 @@ public:
 	// 집게손가락 표시할 모션컨트롤러
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HandComp")
 	class UMotionControllerComponent* RightAim;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HandComp")
+	class UMotionControllerComponent* LeftAim;
 	// 왼손 모델
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class USkeletalMeshComponent* LeftHandMesh;
@@ -148,6 +151,7 @@ public:
 	FTimerHandle GrabTimer;
 
 	void RemoteGrab();
+	void RemoteGrabLeft();
 
 	// Remote Grab 시각화 처리할지 여부
 	UPROPERTY(EditDefaultsOnly, Category="Grab")

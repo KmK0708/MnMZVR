@@ -17,7 +17,6 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(RootComponent);
 	// 물리기능 활성화
@@ -32,6 +31,8 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	AttackBox->SetCollisionProfileName(TEXT("AttackBoxPreset"));
 	AttackBox->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Overlap);
 	AttackBox->SetGenerateOverlapEvents(false);
+	// 어택박스 보이게하기
+	AttackBox->SetHiddenInGame(false);
 	// player 캐스팅
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
@@ -46,6 +47,7 @@ void AMeleeWeaponBase::BeginPlay()
 	AttackBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlap);
 
 	if(!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 }
 
 // Called every frame

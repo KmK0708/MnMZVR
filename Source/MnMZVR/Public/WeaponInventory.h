@@ -23,8 +23,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	class UBoxComponent* WeaponOverlapBox;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* WeaponInvenMesh;
 
     UFUNCTION()
     void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

@@ -80,6 +80,11 @@ AMainPlayer::AMainPlayer()
 	RightAim->SetupAttachment(RootComponent);
 	RightAim->SetTrackingMotionSource(FName("RightAim"));
 
+	// 왼쪽집게손가락
+	LeftAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftAim"));
+	LeftAim->SetupAttachment(RootComponent);
+	LeftAim->SetTrackingMotionSource(FName("LeftAim"));
+
 //  	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
 //  	WidgetInteractionComp->SetupAttachment(RightAim);
 
@@ -88,7 +93,7 @@ AMainPlayer::AMainPlayer()
 	// Create the weapon inventory component
 	WeaponInvenComp = CreateDefaultSubobject<UWeaponInvenComp>(TEXT("WeaponInvenComp"));
 	// Attach the component to the root component of the character
-	//WeaponInvenComp->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	WeaponInvenComp->AddToRoot();
 }
 
 // Called when the game starts or when spawned
@@ -127,6 +132,11 @@ void AMainPlayer::BeginPlay()
 		// -> 기본 트랙킹 offset 설정
 		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
 		PlayerCamera->bUsePawnControlRotation = false;
+		// 플레이어가 보는방향을 앞으로 설정한다.
+		RightHand->SetRelativeLocation(FVector(0, 0, 0));
+		// 에임도 일치하게 하자
+		RightAim->SetRelativeLocation(FVector(0, 0, 0));
+		
 	}
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
@@ -159,7 +169,7 @@ void AMainPlayer::Tick(float DeltaTime)
 		CurrentGrabbedObjectVelocity = Velocity.Size();
 		LastGrabbedObjectPosition = CurrentPosition;
 	
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
+		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
 
 	}
 
@@ -229,6 +239,12 @@ void AMainPlayer::StopSwingingMeleeWeapon()
 
 void AMainPlayer::TryGrabLeft()
 {
+
+	if (IsRemoteGrab)
+	{
+		RemoteGrabLeft();
+		return;
+	}
 	// 중심점
 	FVector Center = LeftHand->GetComponentLocation();
 
@@ -279,11 +295,6 @@ void AMainPlayer::TryGrabLeft()
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
-		if (Weapon)
-		{
-			IsWeapon = true;
-		}
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
 		
@@ -355,6 +366,7 @@ void AMainPlayer::TryGrabRight()
 		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
 	}
@@ -438,7 +450,7 @@ void AMainPlayer::Grabbing()
 		// 이전회전값 업데이트
 		PrevRot = LeftHand->GetComponentQuat();
 	}
-	else if (IsGrabedRight == true && IsGrabedLeft == false)
+	else if (IsGrabedRight == true && IsGrabedLeft == false) 
 	{
 		// 던질 방향 업데이트
 		ThrowDirection = RightHand->GetComponentLocation() - PrevPos;
@@ -507,8 +519,15 @@ void AMainPlayer::RemoteGrab()
 		// 잡은 물체 할당
 		GrabbedObject = HitInfo.GetComponent();
 		// -> 물체 물리기능 비활성화
+		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
+		if (Weapon)
+		{
+			IsWeapon = true;
+		}
 
 		// -> 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
@@ -538,6 +557,74 @@ void AMainPlayer::RemoteGrab()
 
 			PrevPos = RightHand->GetComponentLocation();
 			PrevRot = RightHand->GetComponentQuat();
+
+			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
+		}
+			}
+		), 0.02f, true);
+	}
+}
+
+void AMainPlayer::RemoteGrabLeft()
+{
+	// 충돌체크(구충돌)
+	// 충돌한 물체들 기록할 배열
+	// 충돌 질의 작성
+	FCollisionQueryParams Param;
+	Param.AddIgnoredActor(this);
+	Param.AddIgnoredComponent(LeftAim);
+	FVector StartPos = LeftAim->GetComponentLocation();
+	FVector EndPos = StartPos + LeftAim->GetForwardVector() * RemoteDistance;
+
+	FHitResult HitInfo;
+	bool bHit = GetWorld()->SweepSingleByChannel(HitInfo, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(RemoteRadius), Param);
+
+	// 충돌이 되면 잡아당기기 애니메이션 실행
+	if (bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
+	{
+		// 잡았다
+		IsGrabedLeft = true;
+		// 잡은 물체 할당
+		GrabbedObject = HitInfo.GetComponent();
+		// -> 물체 물리기능 비활성화
+		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
+		GrabbedObject->SetSimulatePhysics(false);
+		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
+		if (Weapon)
+		{
+			IsWeapon = true;
+		}
+
+		// -> 손에 붙여주자
+		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
+
+		// 원거리 물체가 손으로 끌려오도록 처리
+		GetWorld()->GetTimerManager().SetTimer(GrabTimer, FTimerDelegate::CreateLambda(
+			[this]()->void
+			{
+				// 이동 중간에 사용자가 놔버리면
+				if (GrabbedObject == nullptr)
+				{
+					GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
+					return;
+				}
+		//  물체가 -> 손 위치로 도착
+		FVector Pos = GrabbedObject->GetComponentLocation();
+		FVector TargetPos = LeftHand->GetComponentLocation();
+		Pos = FMath::Lerp<FVector>(Pos, TargetPos, RemoteMoveSpeed * GetWorld()->DeltaTimeSeconds);
+		GrabbedObject->SetWorldLocation(Pos);
+
+		float Distance = FVector::Dist(Pos, TargetPos);
+		// 거의 가까워졌다면
+		if (Distance < 10)
+		{
+			// 이동 중단하기
+			GrabbedObject->SetWorldLocation(TargetPos);
+
+			PrevPos = LeftHand->GetComponentLocation();
+			PrevRot = LeftHand->GetComponentQuat();
 
 			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
 		}
