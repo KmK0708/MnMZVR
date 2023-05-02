@@ -9,14 +9,11 @@
 #include <Kismet/GameplayStatics.h>
 #include <AIController.h>
 
-// Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
-// Called when the game starts
 void UEnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
@@ -36,7 +33,6 @@ void UEnemyFSM::BeginPlay()
 }
 
 
-// Called every frame
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
