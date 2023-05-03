@@ -14,11 +14,4 @@ class MNMZVR_API AMnMZGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
-
-	UPROPERTY(EditAnywhere, Category=MyDefaultSetting)
-	TSubclassOf<class UMainWidjet> mainWidget;
-
-	virtual void BeginPlay() override;
-	
 };
