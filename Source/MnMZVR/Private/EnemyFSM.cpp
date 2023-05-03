@@ -5,16 +5,15 @@
 #include "MainPlayer.h"
 #include "Enemy_Skeleton.h"
 #include "EnemyAnim.h"
+#include <Components/CapsuleComponent.h>
 #include <Kismet/GameplayStatics.h>
+#include <AIController.h>
 
-// Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
-// Called when the game starts
 void UEnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
@@ -29,12 +28,11 @@ void UEnemyFSM::BeginPlay()
 
 	//GameMode = Cast<MnMZGameModeBase>(GetWorld()->GetAuthGameMode());
 
-	// Ai 컨트롤
-	//ai = Cast<AAIController>(me->GetController());
+	//Ai 컨트롤
+	ai = Cast<AAIController>(me->GetController());
 }
 
 
-// Called every frame
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -87,7 +85,8 @@ void UEnemyFSM::MoveState()
 	// 2. 방향이 필요하다.
 	FVector dir = destiantion - me->GetActorLocation();
 	// 3. 방향으로 이동하고 싶다.
-	me->AddMovementInput(dir.GetSafeNormal());
+	//me->AddMovementInput(dir.GetSafeNormal());
+	ai->MoveToLocation(destiantion);
 
 	// 타깃과 가까워지면 공격 상태로 전환하고 싶다.
 	// 1. 만약 거리가 공격범위 안에 들어오면
@@ -162,11 +161,11 @@ void UEnemyFSM::DamageState()
 //죽음상태
 void UEnemyFSM::DieState()
 {
-	//// 죽어가는 애니메이션이 끝나지 않았다면 계속 쓰러지고 싶다.
-	//if (anim->bDieDone == false)
-	//{
-	//	return;
-	//}
+	// 죽어가는 애니메이션이 끝나지 않았다면 계속 쓰러지고 싶다.
+	if (anim->bDieDone == false)
+	{
+		return;
+	}
 
 	//me->Destroy();
 }
@@ -174,10 +173,11 @@ void UEnemyFSM::DieState()
 void UEnemyFSM::OnDamageProcess(int32 damageValue)
 {
 
-	me->Destroy();
+	//me->Destroy();
 
 	// 체력 감소
-	hp -= damageValue;
+	//hp -= damageValue;
+	hp--;
 	// 만약 체력이 남아있다면
 	if (hp > 0)
 	{
@@ -185,12 +185,10 @@ void UEnemyFSM::OnDamageProcess(int32 damageValue)
 		mState = EEnemystate::Damage;
 
 		currentTime = 0;
-		//// 피격 애니메이션 재생
-		//int32 index = FMath::RandRange(0, 1);
-		//FString sectionName = FString::Printf(TEXT("Damage%d"), 0);
-		//anim->PlayDamageAnim(FName(*sectionName));
-
-
+		// 피격 애니메이션 재생
+		int32 index = FMath::RandRange(0, 1);
+		FString sectionName = FString::Printf(TEXT("Damage%d"), 0);
+		anim->PlayDamageAnim(FName(*sectionName));
 	}
 	// 그렇지 않다면
 	else
@@ -203,10 +201,15 @@ void UEnemyFSM::OnDamageProcess(int32 damageValue)
 		//target->money += 500;
 		//GameMode->main_UI->PrintEarnMoney(500);
 
-		////죽음 애니메이션 재생
-		//anim->PlayDamageAnim(TEXT("die"));
 		// 상태를 죽음으로 전환
 		mState = EEnemystate::Die;
+
+		//갭슐충돌 비활성화
+		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		//죽음 애니메이션 재생
+		anim->PlayDamageAnim(TEXT("StayDie"));
+		
 
 		//isdying = true;
 

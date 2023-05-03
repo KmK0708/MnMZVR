@@ -87,4 +87,8 @@ public:
 	// 사용중인 애니메이션 블루프린트
 	UPROPERTY()
 	class UEnemyAnim* anim;
+
+	//Enemy를 소유하고 있는 AIController
+	UPROPERTY()
+	class AAIController* ai;
 };
