@@ -123,10 +123,12 @@ public:
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
 
-	UPROPERTY()
-    class UWeaponInvenComp* WeaponInvenComp;
-
 	float CurrentGrabbedObjectVelocity;
+
+	// GrabPoint HandOffset
+	UPROPERTY(EditAnywhere, Category = "Grab")
+	FVector HandOffset = FVector(0, 0, 0);
+
 	//=============困连==============//
 	protected:
 	// 困连 包访 加己

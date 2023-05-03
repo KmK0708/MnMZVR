@@ -26,7 +26,7 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 
 	// AttackBox 생성
 	AttackBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
-	AttackBox->SetupAttachment(RootComponent);
+	AttackBox->SetupAttachment(WeaponMesh);
 	// AttackBox의 콜리전 프리셋 AttackBoxPreset
 	AttackBox->SetCollisionProfileName(TEXT("AttackBoxPreset"));
 	AttackBox->SetCollisionResponseToChannel(ECC_GameTraceChannel5, ECR_Overlap);

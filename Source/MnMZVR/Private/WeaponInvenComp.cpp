@@ -20,23 +20,7 @@ UWeaponInvenComp::UWeaponInvenComp()
 
 	// ...
 
-	AMainPlayer* Owner = Cast<AMainPlayer>(GetOwner());
-	if (Owner)
-	{
-		USceneComponent* RootComponent = Owner->GetRootComponent();
-		if (RootComponent)
-		{
-			WeaponOverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponOverlapBox"));
-			WeaponOverlapBox-> SetupAttachment(RootComponent);
-			//WeaponOverlapBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-			WeaponOverlapBox->SetBoxExtent(FVector(10.0f, 10.0f, 5.0f));
-			WeaponOverlapBox->SetRelativeLocation(FVector(0.f, 10.f, 10.f));
-			WeaponOverlapBox->SetCollisionProfileName(TEXT("WeaponOverlap"));
 
-			// Bind OnComponentBeginOverlap event
-			WeaponOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &UWeaponInvenComp::OnWeaponOverlapBegin);
-		}
-	}
 }
 
 
@@ -46,7 +30,23 @@ void UWeaponInvenComp::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-
+	 	AMainPlayer* Owner = Cast<AMainPlayer>(GetOwner());
+ 	if (Owner)
+ 	{
+ 		USceneComponent* RootComponent = Owner->GetRootComponent();
+ 		if (RootComponent)
+ 		{
+ 			WeaponOverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponOverlapBox"));
+ 			WeaponOverlapBox-> SetupAttachment(RootComponent);
+ 			WeaponOverlapBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+ 			WeaponOverlapBox->SetBoxExtent(FVector(10.0f, 10.0f, 5.0f));
+ 			WeaponOverlapBox->SetRelativeLocation(FVector(0.f, 10.f, 10.f));
+ 			WeaponOverlapBox->SetCollisionProfileName(TEXT("WeaponOverlap"));
+ 
+ 			// Bind OnComponentBeginOverlap event
+ 			WeaponOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &UWeaponInvenComp::OnWeaponOverlapBegin);
+ 		}
+ 	}
 }
 
 

@@ -6,7 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "MeleeWeaponBase.h"
-#include "WeaponInvenComp.h"
+#include "WeaponInventory.h"
 #include <Components/BoxComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
@@ -90,10 +90,7 @@ AMainPlayer::AMainPlayer()
 
 	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
-	// Create the weapon inventory component
-	WeaponInvenComp = CreateDefaultSubobject<UWeaponInvenComp>(TEXT("WeaponInvenComp"));
-	// Attach the component to the root component of the character
-	WeaponInvenComp->AddToRoot();
+
 }
 
 // Called when the game starts or when spawned
@@ -530,7 +527,7 @@ void AMainPlayer::RemoteGrab()
 		}
 
 		// -> 손에 붙여주자
-		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
+		GrabbedObject->AttachToComponent(RightHandMesh, FAttachmentTransformRules::KeepWorldTransform);
 
 		// 원거리 물체가 손으로 끌려오도록 처리
 		GetWorld()->GetTimerManager().SetTimer(GrabTimer, FTimerDelegate::CreateLambda(
@@ -544,7 +541,7 @@ void AMainPlayer::RemoteGrab()
 				}
 		//  물체가 -> 손 위치로 도착
 		FVector Pos = GrabbedObject->GetComponentLocation();
-		FVector TargetPos = RightHand->GetComponentLocation();
+		FVector TargetPos = RightHandMesh->GetComponentLocation() + HandOffset;
 		Pos = FMath::Lerp<FVector>(Pos, TargetPos, RemoteMoveSpeed * GetWorld()->DeltaTimeSeconds);
 		GrabbedObject->SetWorldLocation(Pos);
 
@@ -555,8 +552,8 @@ void AMainPlayer::RemoteGrab()
 			// 이동 중단하기
 			GrabbedObject->SetWorldLocation(TargetPos);
 
-			PrevPos = RightHand->GetComponentLocation();
-			PrevRot = RightHand->GetComponentQuat();
+			PrevPos = RightHandMesh->GetComponentLocation();
+			PrevRot = RightHandMesh->GetComponentQuat();
 
 			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
 		}
@@ -598,7 +595,7 @@ void AMainPlayer::RemoteGrabLeft()
 		}
 
 		// -> 손에 붙여주자
-		GrabbedObject->AttachToComponent(LeftHand, FAttachmentTransformRules::KeepWorldTransform);
+		GrabbedObject->AttachToComponent(LeftHandMesh, FAttachmentTransformRules::KeepWorldTransform);
 
 		// 원거리 물체가 손으로 끌려오도록 처리
 		GetWorld()->GetTimerManager().SetTimer(GrabTimer, FTimerDelegate::CreateLambda(
@@ -612,7 +609,8 @@ void AMainPlayer::RemoteGrabLeft()
 				}
 		//  물체가 -> 손 위치로 도착
 		FVector Pos = GrabbedObject->GetComponentLocation();
-		FVector TargetPos = LeftHand->GetComponentLocation();
+		// TargetPos 가 왼손메시에있는 위치와 소켓 Palm_r 에 붙는다.		
+		FVector TargetPos = LeftHandMesh->GetComponentLocation() + HandOffset;
 		Pos = FMath::Lerp<FVector>(Pos, TargetPos, RemoteMoveSpeed * GetWorld()->DeltaTimeSeconds);
 		GrabbedObject->SetWorldLocation(Pos);
 
@@ -623,8 +621,8 @@ void AMainPlayer::RemoteGrabLeft()
 			// 이동 중단하기
 			GrabbedObject->SetWorldLocation(TargetPos);
 
-			PrevPos = LeftHand->GetComponentLocation();
-			PrevRot = LeftHand->GetComponentQuat();
+			PrevPos = LeftHandMesh->GetComponentLocation();
+			PrevRot = LeftHandMesh->GetComponentQuat();
 
 			GetWorld()->GetTimerManager().ClearTimer(GrabTimer);
 		}
