@@ -17,6 +17,12 @@ AWeaponInventory::AWeaponInventory()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
     WeaponInvenMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponInvenMesh"));
+    // 메시 설정하기
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> WeaponMesh(TEXT("StaticMesh'/Game/Assets/Weapon/WeaponInven.WeaponInven'"));
+    if (WeaponMesh.Succeeded())
+    {
+		WeaponInvenMesh->SetStaticMesh(WeaponMesh.Object);
+	}
 	WeaponInvenMesh->SetupAttachment(RootComponent);
     WeaponInvenMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

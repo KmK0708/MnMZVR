@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/ChildActorComponent.h"
 #include "MainPlayer.generated.h"
 
 UCLASS()
@@ -74,6 +75,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class UBoxComponent* LeftHandBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* BeltMeshComp;
+
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -89,6 +93,12 @@ public:
 	// 잡은 물체 기억
 	UPROPERTY()
 	class UPrimitiveComponent* GrabbedObject;
+
+	// 왼쪽 잡은 물체 기억
+	UPROPERTY()
+	class UPrimitiveComponent* LeftGrabbedObject;
+
+
 	
 	//왼잡 bool 변수
 	bool IsGrabedLeft = false;
@@ -104,12 +114,20 @@ public:
 		float MyThrowPower = 10000.0f;
 	// 던질 방향
 	FVector ThrowDirection;
+	// 왼쪽 던질 방향
+	FVector LeftThrowDirection;
 	// 직전위치
 	FVector PrevPos;
+	// 왼손직전위치
+	FVector LeftPrevPos;
 	// 이전 회전값
 	FQuat PrevRot;
+	// 왼쪽 이전 회전값
+	FQuat LeftPrevRot;
 	// 회전방향
 	FQuat DeltaRotation;
+	// 왼쪽 회전방향
+	FQuat LeftDeltaRotation;
 	// 회전빠르기
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	float TorquePower = 1;
@@ -122,6 +140,9 @@ public:
 
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
+
+	UPROPERTY()
+	FVector LastGrabbedObjectPositionLeft;
 
 	float CurrentGrabbedObjectVelocity;
 
@@ -188,11 +209,10 @@ public:
 	void Turn(const FInputActionValue& Values);
 	// 클릭 함수
 	void OnClick(const FInputActionValue& Values);
-
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StartSwingingMeleeWeapon();
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StopSwingingMeleeWeapon();
+	
+	// 인벤토리 부착함수
+	UFUNCTION()
+	void AttachWeaponInventory();
 
 	bool bIsSwingingMeleeWeapon;
 
