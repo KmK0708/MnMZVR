@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MeleeDamage = 100.0f;
 
+	// 플레이어 손에있는가.
+	UPROPERTY(EditAnywhere)
+	bool bIsInHand = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float WeaponVelocity;

@@ -78,6 +78,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* BeltMeshComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class AWeaponInventory* WeaponInven;
+
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -149,6 +152,15 @@ public:
 	// GrabPoint HandOffset
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	FVector HandOffset = FVector(0, 0, 0);
+	//============잡기==============//
+	// 잡기 시도 기능(왼쪽)
+	void TryGrabLeft();
+	// 잡기 시도 기능(오른쪽)
+	void TryGrabRight();
+	// 왼 놓기
+	void UnTryGrabLeft();
+	// 오 놓기
+	void UnTryGrabRight();
 
 	//=============위젯==============//
 	protected:
@@ -193,14 +205,7 @@ public:
 
 	//=================================//
 
-	// 잡기 시도 기능(왼쪽)
-	void TryGrabLeft();
-	// 잡기 시도 기능(오른쪽)
-	void TryGrabRight();
-	// 왼 놓기
-	void UnTryGrabLeft();
-	// 오 놓기
-	void UnTryGrabRight();
+
 	// 잡고있는중
 	void Grabbing();
 	// 이동처리함수
