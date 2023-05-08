@@ -547,16 +547,16 @@ void AMainPlayer::RemoteGrab()
 		// 잡은 물체 할당
 		GrabbedObject = HitInfo.GetComponent();
 
-		// -> 물체 물리기능 비활성화
-		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
-		GrabbedObject->SetSimulatePhysics(false);
-		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
 		if (Weapon)
 		{
 			IsWeapon = true;
 		}
+		// -> 물체 물리기능 비활성화
+		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
+		GrabbedObject->SetSimulatePhysics(false);
+		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 
 		// -> 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHandMesh, FAttachmentTransformRules::KeepWorldTransform);

@@ -109,6 +109,7 @@ public:
 	bool IsGrabedRight = false;
 	
 	// 무기 bool 변수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab")
 	bool IsWeapon = false;
 
 	// 던지면 원하는 방향으로 날아가도록 하고싶다.
