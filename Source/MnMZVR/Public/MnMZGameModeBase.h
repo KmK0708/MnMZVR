@@ -13,5 +13,5 @@ UCLASS()
 class MNMZVR_API AMnMZGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 };

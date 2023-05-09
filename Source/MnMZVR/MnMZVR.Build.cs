@@ -8,7 +8,7 @@ public class MnMZVR : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "HeadMountedDisplay","UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "HeadMountedDisplay","UMG","NavigationSystem","AIModule", "EnhancedInput","UMG" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
