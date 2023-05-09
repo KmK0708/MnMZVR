@@ -66,13 +66,18 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
     // Check if the overlapped actor is a weapon and if the weapon is being held by the player
     AMeleeWeaponBase* Weapon = Cast<AMeleeWeaponBase>(OtherActor);
     AMainPlayer* Mainplayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-    Player = Cast<AMainPlayer>(OtherActor);
+
+//     FName overlappedName = OtherActor->GetFName();
+//    // overlappedName을 TEXT로 출력
+//     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap is :") + overlappedName.ToString(), true, FVector2D(3.0f, 3.0f));
+
+    // 오버랩된게 플레이어의 왼쪽 콜리전인가 오른쪽 콜리전인가 판단해야함, 지금은 플레이어가 콜리전은 가지고있는가를 판단중.
     // 무기 장착
     if (Weapon)
     {
         // 화면 로그찍기
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Weapon Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-        
+       
         // 오른손에 쥐고있었다면.
         if (Mainplayer->IsGrabedRight == true && Mainplayer->IsWeapon == true)
         {
@@ -81,47 +86,46 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
 			// 2.target is Weapon Parent is OverlappedComponent
 			Weapon->AttachToComponent(WeaponOverlapBox, FAttachmentTransformRules::KeepRelativeTransform);
 			// bool 값을 만들어서 어태치되었을때는 true, 그랩을 누르면 false
-            Mainplayer->IsWeapon = true;
+            Mainplayer->IsWeapon = false;
+            Mainplayer->RightHandMesh->SetVisibility(true);
+            bIsWeaponAttached = true;
 		}
-
-       else if (Mainplayer->IsGrabedLeft == true && Mainplayer->IsWeapon == true)
+        
+        if (Mainplayer->IsGrabedLeft == true && Mainplayer->IsWeapon == true)
         {
             // Attach the weapon to the overlap box 
                // 1. 잡지않은 상태로 전환
             Mainplayer->IsGrabedLeft = false;
             // 2.target is Weapon Parent is OverlappedComponent
             Weapon->AttachToComponent(WeaponOverlapBox, FAttachmentTransformRules::KeepRelativeTransform);
+            Mainplayer->IsWeapon = false;
+            bIsWeaponAttached = true;
         }
         // bool 값을 만들어서 어태치되었을때는 true, 그랩을 누르면 false
     }
 
-    // 오버랩되는게 플레이어의 LeftHand 또는 RightHand라면
-    if (Player->LeftHand || Player->RightHand)
-    {
-        {
-            if (Mainplayer->LeftHand && Mainplayer->IsGrabedLeft == false)
-            {
-                // 인벤토리에 있는 아이템을 손에 다시 쥐어준다.
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Left Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-            }
 
-            // 무기 장착 해제
-            if (Mainplayer->RightHand)
-            {
-                // 인벤토리에 있는 아이템을 손에 다시 쥐어준다.
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Right Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-
-                if (Mainplayer->IsGrabedRight == true)
-                {
+      //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap Begin"), true, FVector2D(3.0f, 3.0f));
+     // 오른손이 오버랩 이고 왼손 오버랩이 아니라면.
+     if (Mainplayer->RightHandSphere) //부딪힌 애가 (other ) 가 플레이어 손(콜리전)인가  ?
+     {
+         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("RHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
+         // 1. 잡은 상태로 전환
+         if (Mainplayer->IsGrabedRight == false && bIsWeaponAttached == true)
+         {
+            // 인벤토리에 부착되었던 무기를 손으로 가져간다.
+         }
+     }
 
 
-
-                }
-            }
-
-        }
-
-    }
- 
+     // 왼손이 오버랩 되었다면.
+     if (Mainplayer->LeftHandSphere) //플레이어가 왼쪽 콜라이더 구를 가지고 있다면
+     {
+         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
+         if (Mainplayer->IsGrabedLeft == false && bIsWeaponAttached == true)
+         {
+            // 인벤토리에 부착되었던 무기를 손으로 가져간다.
+         }
+     }
 }
 

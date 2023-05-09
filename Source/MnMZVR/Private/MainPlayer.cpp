@@ -9,6 +9,7 @@
 #include "WeaponInventory.h"
 #include "Components/ChildActorComponent.h"
 #include <Components/BoxComponent.h>
+#include <Components/SphereComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraComponent.h>
 #include <MotionControllerComponent.h>
@@ -40,6 +41,13 @@ AMainPlayer::AMainPlayer()
 	// 왼손 스켈레탈 메시 설정
 	LeftHandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LeftHandMesh"));
 	LeftHandMesh->SetupAttachment(LeftHand);
+	// 왼손 스피어콜리전
+	LeftHandSphere = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHandSphere"));
+	LeftHandSphere->SetupAttachment(LeftHandMesh);
+	LeftHandSphere->SetSphereRadius(3);
+	LeftHandSphere->SetCollisionProfileName(TEXT("PlayerPreset"));
+	LeftHandSphere->SetRelativeLocation(FVector(0.0f, 7.0f, 2.0f));
+
 	// 왼손 콜리전박스
 	LeftHandBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollision"));
 	LeftHandBox->SetupAttachment(LeftHandMesh);
@@ -65,6 +73,13 @@ AMainPlayer::AMainPlayer()
 	// 오른손 스켈레탈 메시 설정
 	RightHandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RightHandMesh"));
 	RightHandMesh->SetupAttachment(RightHand);
+	// 오른손 스피어콜리전
+	RightHandSphere = CreateDefaultSubobject<USphereComponent>(TEXT("RightHandSphere"));
+	RightHandSphere->SetupAttachment(RightHandMesh);
+	RightHandSphere->SetSphereRadius(3);
+	RightHandSphere->SetCollisionProfileName(TEXT("PlayerPreset"));
+	RightHandSphere->SetRelativeLocation(FVector(0.0f, 7.0f, 2.0f));
+
 	// 스켈레탈 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> RHandMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_right.SKM_MannyXR_right'"));
 	if (RHandMesh.Succeeded())
@@ -438,6 +453,7 @@ void AMainPlayer::UnTryGrabRight()
 	{
 		// 1. 잡지않은 상태로 전환
 		IsGrabedRight = false;
+		RightHandMesh->SetVisibility(true);
 		// 2. 손에서 떼어내기
 		GrabbedObject->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		// 3. 물리기능 활성화
@@ -527,12 +543,12 @@ void AMainPlayer::ReleaseUIInput()
 
 void AMainPlayer::RemoteGrab()
 {
-	// 충돌체크(구충돌)
-	// 충돌한 물체들 기록할 배열
-	// 충돌 질의 작성
+	TArray<FOverlapResult> HitObj;
 	FCollisionQueryParams Param;
 	Param.AddIgnoredActor(this);
 	Param.AddIgnoredComponent(RightAim);
+	Param.AddIgnoredComponent(RightHand);
+	Param.AddIgnoredComponent(RightHandMesh);
 	FVector StartPos = RightAim->GetComponentLocation();
 	FVector EndPos = StartPos + RightAim->GetForwardVector() * RemoteDistance;
 
@@ -540,25 +556,36 @@ void AMainPlayer::RemoteGrab()
 	bool bHit = GetWorld()->SweepSingleByChannel(HitInfo, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(RemoteRadius), Param);
 
 	// 충돌이 되면 잡아당기기 애니메이션 실행
-	if (bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
+	if ( bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
 	{
 		// 잡았다
 		IsGrabedRight = true;
 		// 잡은 물체 할당
+		// 물체 물리기능 비활성화
 		GrabbedObject = HitInfo.GetComponent();
+		RightHandMesh->SetVisibility(false);
+		Weapon = Cast<AMeleeWeaponBase>(GrabbedActorRight);
+		// 잡은 대상이 Weapon 이라면
+		if (GrabbedActorRight == Weapon && Weapon != nullptr)
+		{
+			IsWeapon = true;
+			//GrabbedObjectWithTongsRight = nullptr;
+			GrabbedObject->K2_AttachToComponent(RightHandMesh, TEXT("HandRSocket"), EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, false);
+			RightHandMesh->SetVisibility(false);
+			GrabbedActorRight->SetActorEnableCollision(false);
+			UE_LOG(LogTemp, Warning, TEXT("grab Weapon on Right"))
+		}
 
 		Weapon = Cast<AMeleeWeaponBase>(GrabbedObject->GetOwner());
 		if (Weapon)
 		{
+			Weapon->AttachToComponent(RightHandMesh, FAttachmentTransformRules::KeepWorldTransform);
 			IsWeapon = true;
 		}
 		// -> 물체 물리기능 비활성화
 		LastGrabbedObjectPosition = GrabbedObject->GetComponentLocation();
 		GrabbedObject->SetSimulatePhysics(false);
 		GrabbedObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-
-		// -> 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHandMesh, FAttachmentTransformRules::KeepWorldTransform);
 
 		// 원거리 물체가 손으로 끌려오도록 처리
@@ -596,9 +623,6 @@ void AMainPlayer::RemoteGrab()
 
 void AMainPlayer::RemoteGrabLeft()
 {
-	// 충돌체크(구충돌)
-	// 충돌한 물체들 기록할 배열
-	// 충돌 질의 작성
 	FCollisionQueryParams Param;
 	Param.AddIgnoredActor(this);
 	Param.AddIgnoredComponent(LeftAim);

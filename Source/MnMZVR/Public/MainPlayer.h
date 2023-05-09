@@ -68,9 +68,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class USkeletalMeshComponent* RightHandMesh;
 
-	// 오른손 콜리전박스
+	// 오른손 콜리전스피어
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
-	class UBoxComponent* RightHandBox;
+	class USphereComponent* RightHandSphere;
+	// 왼손 콜리전스피어
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
+	class USphereComponent* LeftHandSphere;
+
 	// 왼손 콜리전박스
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class UBoxComponent* LeftHandBox;
@@ -93,6 +97,12 @@ public:
 	// 잡을 최대 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
 		float GrabMaxRange = 50.0f;
+
+	UPROPERTY()
+	class AActor* GrabbedActorRight;
+	// 왼손 그랩 액터
+	UPROPERTY()
+	class AActor* GrabbedActorLeft;
 	// 잡은 물체 기억
 	UPROPERTY()
 	class UPrimitiveComponent* GrabbedObject;
