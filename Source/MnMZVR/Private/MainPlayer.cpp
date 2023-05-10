@@ -47,6 +47,8 @@ AMainPlayer::AMainPlayer()
 	LeftHandSphere->SetSphereRadius(3);
 	LeftHandSphere->SetCollisionProfileName(TEXT("PlayerPreset"));
 	LeftHandSphere->SetRelativeLocation(FVector(0.0f, 7.0f, 2.0f));
+	// 왼쪽 콜라이더 태그
+	LeftHandSphere->ComponentTags.Add(TEXT("LeftHandSphere"));
 
 	// 왼손 콜리전박스
 	LeftHandBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollision"));
@@ -79,6 +81,9 @@ AMainPlayer::AMainPlayer()
 	RightHandSphere->SetSphereRadius(3);
 	RightHandSphere->SetCollisionProfileName(TEXT("PlayerPreset"));
 	RightHandSphere->SetRelativeLocation(FVector(0.0f, 7.0f, 2.0f));
+	// 오른쪽 콜라이더 태그
+	RightHandSphere->ComponentTags.Add(TEXT("RightHandSphere"));
+	
 
 	// 스켈레탈 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> RHandMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_right.SKM_MannyXR_right'"));
@@ -124,10 +129,8 @@ AMainPlayer::AMainPlayer()
 	// 컨스트럭터 헬퍼를 이용해서 AActor 인 WeaponInven 을 찾아서 할당
 //	ConstructorHelpers::FClassFinder<AWeaponInventory> WeaponInvenClass(TEXT("/Script/VR_Tutorial.WeaponInventory"));
 
-
 	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
-
 }
 
 // Called when the game starts or when spawned
@@ -338,20 +341,11 @@ void AMainPlayer::TryGrabLeft()
 
 	}
 
-	// 	// 잡은게 무기라면 무기를 잡은것으로 처리
-	// 	if (HitObj[Closest].GetActor()->ActorHasTag("Weapon"))
-	// 	{
-	// 		IsWeapon = true;
-	// 	}
-	// 	else
-	// 	{
-	// 		IsWeapon = false;
-	// 	}
 }
 
 void AMainPlayer::TryGrabRight()
 {
-	if (IsRemoteGrab)
+	if (IsRemoteGrab && !bIsOverlappedRight && !bIsOverlappedLeft)
 	{
 		RemoteGrab();
 		return;
@@ -374,6 +368,7 @@ void AMainPlayer::TryGrabRight()
 	int32 Closest = 0;
 	for (int i = 0; i < HitObj.Num(); ++i)
 	{
+		HitObj[i].GetActor()->ActorHasTag("Weapon");
 		// 1. 물리기능이 활성화 되어 있는 대상만 판단
 		if (HitObj[i].GetComponent()->IsSimulatingPhysics() == false)
 		{
@@ -408,6 +403,21 @@ void AMainPlayer::TryGrabRight()
 		// 손에 붙여주자
 		GrabbedObject->AttachToComponent(RightHand, FAttachmentTransformRules::KeepWorldTransform);
 	}
+}
+
+void AMainPlayer::TryGrabRightInven()
+{
+	// if RIghthand isgrabed == false, RightHandSphere is overlap weapon inventory
+	if (IsGrabedRight == false)
+	{
+		return;
+	}
+}
+
+
+void AMainPlayer::TryGrabLeftInven()
+{
+	
 }
 
 void AMainPlayer::UnTryGrabLeft()

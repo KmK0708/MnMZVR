@@ -164,10 +164,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	FVector HandOffset = FVector(0, 0, 0);
 	//============잡기==============//
-	// 잡기 시도 기능(왼쪽)
+	// 잡기 시도 기능(왼쪽)`
 	void TryGrabLeft();
+	// 인벤토리 잡기 시도 기능(왼쪽)
+	void TryGrabLeftInven();
 	// 잡기 시도 기능(오른쪽)
 	void TryGrabRight();
+	// 잡기 시도 기능(오른쪽)
+	void TryGrabRightInven();
 	// 왼 놓기
 	void UnTryGrabLeft();
 	// 오 놓기
@@ -231,6 +235,11 @@ public:
 	void AttachWeaponInventory();
 
 	bool bIsSwingingMeleeWeapon;
+
+public:
+	// 오/왼손 구체 콜리전이 인벤토리에 오버랩 되었는가.
+	bool bIsOverlappedRight;
+	bool bIsOverlappedLeft;
 
 protected:
 // 플레이어 카메라

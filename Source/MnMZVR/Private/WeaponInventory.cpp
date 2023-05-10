@@ -52,6 +52,7 @@ void AWeaponInventory::BeginPlay()
 
     // Bind OnComponentBeginOverlap event
    WeaponOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &AWeaponInventory::OnWeaponOverlapBegin);
+
 }
 
 // Called every frame
@@ -66,12 +67,10 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
     // Check if the overlapped actor is a weapon and if the weapon is being held by the player
     AMeleeWeaponBase* Weapon = Cast<AMeleeWeaponBase>(OtherActor);
     AMainPlayer* Mainplayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-
-//     FName overlappedName = OtherActor->GetFName();
-//    // overlappedName을 TEXT로 출력
-//     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap is :") + overlappedName.ToString(), true, FVector2D(3.0f, 3.0f));
+    GrabActor = Weapon;
 
     // 오버랩된게 플레이어의 왼쪽 콜리전인가 오른쪽 콜리전인가 판단해야함, 지금은 플레이어가 콜리전은 가지고있는가를 판단중.
+    
     // 무기 장착
     if (Weapon)
     {
@@ -104,28 +103,40 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
         // bool 값을 만들어서 어태치되었을때는 true, 그랩을 누르면 false
     }
 
+    if (OtherComp->ComponentHasTag(TEXT("RightHandSphere")))
+    {
+        // The right hand sphere is overlapping
+        // Perform actions for right hand overlap
+        Mainplayer->bIsOverlappedRight = true;
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("RHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
+        if (Mainplayer->IsGrabedRight == false && bIsWeaponAttached == true)
+        {
+            // 레이캐스트를 쏜다.
 
-      //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-     // 오른손이 오버랩 이고 왼손 오버랩이 아니라면.
-     if (Mainplayer->RightHandSphere) //부딪힌 애가 (other ) 가 플레이어 손(콜리전)인가  ?
-     {
-         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("RHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-         // 1. 잡은 상태로 전환
-         if (Mainplayer->IsGrabedRight == false && bIsWeaponAttached == true)
-         {
+
+            // 무기가 있는지 확인한다.
+            // 무기가 있는것이 확인되면
             // 인벤토리에 부착되었던 무기를 손으로 가져간다.
-         }
-     }
-
-
-     // 왼손이 오버랩 되었다면.
-     if (Mainplayer->LeftHandSphere) //플레이어가 왼쪽 콜라이더 구를 가지고 있다면
-     {
-         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
-         if (Mainplayer->IsGrabedLeft == false && bIsWeaponAttached == true)
-         {
+        }
+    }
+    else if (OtherComp->ComponentHasTag(TEXT("LeftHandSphere")))
+    {
+        // The left hand sphere is overlapping
+        // Perform actions for left hand overlap
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
+        if (Mainplayer->IsGrabedLeft == false && bIsWeaponAttached == true)
+        {
             // 인벤토리에 부착되었던 무기를 손으로 가져간다.
-         }
-     }
+
+        }
+    }
+
+}
+
+void AWeaponInventory::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    // 왼손 구체 콜라이더가 오버랩이 끝나면
+    // 
+
 }
 
