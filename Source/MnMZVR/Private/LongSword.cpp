@@ -4,6 +4,7 @@
 #include "LongSword.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 ALongSword::ALongSword()
 {
@@ -13,6 +14,10 @@ ALongSword::ALongSword()
 	// AttackBox 크기,위치설정
 	AttackBox->SetBoxExtent(FVector(4.0f, 4.0f, 51.0f)); 
 	AttackBox->SetRelativeLocation(FVector(0.0f, 0.0f, -65.0f));
+	//Spherecol 사이즈
+	SphereCol->SetSphereRadius(15.0f);
+	// Spherecol 위치
+	SphereCol->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 }
 
 void ALongSword::BeginPlay()

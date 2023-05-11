@@ -115,8 +115,12 @@ public:
 	
 	//왼잡 bool 변수
 	bool IsGrabedLeft = false;
+	// 왼손 그랩 트리거 on/off 확인
+	bool LeftGrabOn = false;
 	//오잡 bool 변수
 	bool IsGrabedRight = false;
+	// 오른손 그랩 트리거 on/off 확인
+	bool RightGrabOn = false;
 	
 	// 무기 bool 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab")
@@ -178,7 +182,7 @@ public:
 	void UnTryGrabRight();
 
 	//=============위젯==============//
-	protected:
+	public:
 	// 위젯 관련 속성
 	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
 		class UWidgetInteractionComponent* WidgetInteractionComp;

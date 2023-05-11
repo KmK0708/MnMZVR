@@ -283,6 +283,7 @@ void AMainPlayer::TryGrabLeft()
 
 	if (IsRemoteGrab)
 	{
+		LeftGrabOn = true;
 		RemoteGrabLeft();
 		return;
 	}
@@ -347,6 +348,7 @@ void AMainPlayer::TryGrabRight()
 {
 	if (IsRemoteGrab && !bIsOverlappedRight && !bIsOverlappedLeft)
 	{
+		RightGrabOn = true;
 		RemoteGrab();
 		return;
 	}
@@ -428,6 +430,7 @@ void AMainPlayer::UnTryGrabLeft()
 	}
 	if (LeftGrabbedObject != nullptr)
 	{
+		LeftGrabOn = false;
 		// 1. 잡지않은 상태로 전환
 		IsGrabedLeft = false;
 		// 2. 손에서 떼어내기
@@ -462,6 +465,7 @@ void AMainPlayer::UnTryGrabRight()
 	if (GrabbedObject != nullptr)
 	{
 		// 1. 잡지않은 상태로 전환
+		RightGrabOn = false;
 		IsGrabedRight = false;
 		RightHandMesh->SetVisibility(true);
 		// 2. 손에서 떼어내기

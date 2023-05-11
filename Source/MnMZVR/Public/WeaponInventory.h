@@ -37,11 +37,21 @@ public:
 	UPROPERTY(EditAnywhere)
 	class AActor* GrabActor;
 
+	UPROPERTY(EditAnywhere)
+	float TraceDistance = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsRaycastOn;
+
     UFUNCTION()
     void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
+	UFUNCTION()
+	void CheckRaycast();
+
 	// 무기가 부착되었는가
 	UPROPERTY(EditAnywhere)
 	bool bIsWeaponAttached = false;
