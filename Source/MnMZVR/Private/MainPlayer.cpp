@@ -274,6 +274,7 @@ void AMainPlayer::AttachWeaponInventory()
 	if (WeaponInventory)
 	{
 		FName SocketName(TEXT("WeaponInvenLeft"));
+		WeaponInven = WeaponInventory;
 		WeaponInventory->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 	}
 }
@@ -457,6 +458,7 @@ void AMainPlayer::UnTryGrabLeft()
 
 void AMainPlayer::UnTryGrabRight()
 {
+	RightGrabOn = false;
 	if (IsGrabedRight == false)
 	{
 		return;
@@ -465,7 +467,6 @@ void AMainPlayer::UnTryGrabRight()
 	if (GrabbedObject != nullptr)
 	{
 		// 1. 잡지않은 상태로 전환
-		RightGrabOn = false;
 		IsGrabedRight = false;
 		RightHandMesh->SetVisibility(true);
 		// 2. 손에서 떼어내기

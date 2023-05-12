@@ -9,7 +9,10 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "MainPlayer.h"
+#include "WeaponInventory.h"
 #include "TestEnemy.h"
+#include "Enemy_Skeleton.h"
+#include "EnemyFSM.h"
 // 게임플레이스테틱
 #include "Kismet/GameplayStatics.h"
 
@@ -54,7 +57,7 @@ void AMeleeWeaponBase::BeginPlay()
 	AttackBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlap);
 	SphereCol->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapHand);
 	SphereCol->OnComponentEndOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapEnd);
-	if(!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 }
 
@@ -68,9 +71,39 @@ void AMeleeWeaponBase::Tick(float DeltaTime)
 
 void AMeleeWeaponBase::Attack()
 {
+	if (SkelEnemy != nullptr)
+	{
+		FSMEnemy = Cast<UEnemyFSM>(SkelEnemy->GetDefaultSubobjectByName(TEXT("fsm")));
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("EnemyTouch")), true, FVector2D(3.0f, 3.0f));
+		if (FSMEnemy)
+		{
+			if (FSMEnemy->hp > 0)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p1")), true, FVector2D(3.0f, 3.0f));
+				FSMEnemy->OnDamageProcess(MeleeDamage);
+
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p2")), true, FVector2D(3.0f, 3.0f));
+			}
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("NullException")), true, FVector2D(3.0f, 3.0f));
+
+		}
+
+	}
+
+	if (Enemy == nullptr)
+	{
+		return;
+	}
+
 	if (Enemy != nullptr)
 	{
-		
+
 		float ModifiedDamage = MeleeDamage;
 		Enemy->AddHealth(-ModifiedDamage);
 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("Enemy Health : %f"), Enemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
@@ -96,27 +129,24 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	if (AttackBox->IsOverlappingComponent(OtherComp))
 	{
 		ATestEnemy* TestEnemy = Cast<ATestEnemy>(OtherActor);
-		if (TestEnemy != nullptr)
+		SkelEnemy = Cast<AEnemy_Skeleton>(OtherActor);
+		if (TestEnemy != nullptr && SkelEnemy != nullptr)	//
 		{
-			Enemy = TestEnemy;
 			AttackBox->SetGenerateOverlapEvents(true); // 공격이 됨
 			if (MainPlayer->IsGrabedLeft == true || MainPlayer->IsGrabedRight == true)
 			{
 				float WeaponSwingSpeed = MainPlayer->CurrentGrabbedObjectVelocity;
 				//FVector Velocity = (CurrentPosition - MainPlayer->LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
-				
+
 				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponSwingSpeed), true, FVector2D(3.0f, 3.0f));
 				if (WeaponSwingSpeed > 300)
 				{
 					// Weapon 의 어택함수
 					Attack();
 				}
-				//MainPlayer->LastGrabbedObjectPosition = CurrentPosition;
 			}
 		}
 	}
-	
-
 }
 
 void AMeleeWeaponBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -128,27 +158,54 @@ void AMeleeWeaponBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, A
 // 		// 로그
 // 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("Overlap")), true, FVector2D(3.0f, 3.0f));
 // 	}
- 	UPrimitiveComponent * _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
- //	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("Overlapped Somthing")), true, FVector2D(3.0f, 3.0f));
- 	if (_rightHandSphere == OtherComp)
- 	{
- 		//if (OtherComp->ComponentHasTag("RightHandSphere"))
- 		//{
- 			bIsOverlapRight = true;
- 			// 로그 띄우기
- 			GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("RightHandOverlap")), true, FVector2D(3.0f, 3.0f));
- 		//}
- 	}
+	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
+	//	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("Overlapped Somthing")), true, FVector2D(3.0f, 3.0f));
+	if (_rightHandSphere == OtherComp)
+	{
+		//if (OtherComp->ComponentHasTag("RightHandSphere"))
+		//{
+		bIsOverlapRight = true;
+		// 로그 띄우기
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("RightHandOverlap")), true, FVector2D(3.0f, 3.0f));
+		//}
+	}
+
+	if (MainPlayer->bIsRightHandinWeaponInven == true && bIsOverlapRight == true && MainPlayer->IsGrabedRight == false)
+	{
+		if (MainPlayer->WeaponInven->bIsWeaponAttached == true)
+		{
+			if (MainPlayer->RightGrabOn == true)
+			{
+				// 피직스 키기
+				WeaponMesh->SetSimulatePhysics(false);
+				MainPlayer->IsGrabedRight = true;
+				MainPlayer->IsWeapon = true;
+				// Attach yourself from your inventory to your hand.
+				this->AttachToComponent(MainPlayer->RightHandMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("HandRSocket"));
+				//WeaponMesh->AttachToComponent(MainPlayer->RightHandMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("HandRSocket"));
+				MainPlayer->WeaponInven->bIsWeaponAttached = false;
+
+			}
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("ExceptionPoint11")), true, FVector2D(3.0f, 3.0f));
+	}
 }
 
 void AMeleeWeaponBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	// 플레이어의 오른쪽 구체가 오버랩이 끝났을때
-	if (MainPlayer->RightHandSphere == nullptr)
+	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
+
+	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
+	if (_rightHandSphere == OtherComp)
 	{
+
 		bIsOverlapRight = false;
 		// 로그 띄우기
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnd")), true, FVector2D(3.0f, 3.0f));
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
+
 	}
 }
 

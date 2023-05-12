@@ -54,7 +54,7 @@ void AWeaponInventory::BeginPlay()
 
     // Bind OnComponentBeginOverlap event
    WeaponOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &AWeaponInventory::OnWeaponOverlapBegin);
-
+   WeaponOverlapBox->OnComponentEndOverlap.AddDynamic(this, &AWeaponInventory::OnWeaponOverlapEnd);
 }
 
 // Called every frame
@@ -82,8 +82,8 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
         {
 			// 1. 잡은 상태로 전환
 			Mainplayer->IsGrabedRight = false;
-			// 2.target is Weapon Parent is OverlappedComponent
-            Weapon->AttachToComponent(WeaponOverlapBox, FAttachmentTransformRules::KeepRelativeTransform);
+			// 2.target is Weapon Parent is OverlappedComponent location rotation setting
+            Weapon->AttachToComponent(WeaponOverlapBox, FAttachmentTransformRules:: KeepRelativeTransform);
             Mainplayer->IsWeapon = false;
             Mainplayer->RightHandMesh->SetVisibility(true);
             bIsWeaponAttached = true;
@@ -96,6 +96,7 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
             Mainplayer->IsGrabedLeft = false;
             // 2.target is Weapon Parent is OverlappedComponent
             Weapon->AttachToComponent(WeaponOverlapBox, FAttachmentTransformRules::KeepRelativeTransform);
+   
             Mainplayer->IsWeapon = false;
             bIsWeaponAttached = true;
         }
@@ -104,13 +105,15 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
 
     if (OtherComp->ComponentHasTag(TEXT("RightHandSphere")))
     {
+        Mainplayer->bIsRightHandinWeaponInven = true;
         if (Mainplayer->IsGrabedRight == false && bIsWeaponAttached == true)
         {
-            // 
+            Mainplayer->Weapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		}
     }
     else if (OtherComp->ComponentHasTag(TEXT("LeftHandSphere")))
     {
+        Mainplayer->bIsLeftHandinWeaponInven = true;
         // The left hand sphere is overlapping
         // Perform actions for left hand overlap
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap Begin"), true, FVector2D(3.0f, 3.0f));
@@ -125,7 +128,28 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
 
 void AWeaponInventory::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+    // Check if the overlapped actor is a weapon and if the weapon is being held by the player
+    AMeleeWeaponBase* Weapon = Cast<AMeleeWeaponBase>(OtherActor);
+    AMainPlayer* Mainplayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
+    if (OtherComp->ComponentHasTag(TEXT("RightHandSphere")))
+    {
+        Mainplayer->bIsRightHandinWeaponInven = false;
+        if (Mainplayer->IsGrabedRight == false && bIsWeaponAttached == true)
+        {
+            // 
+        }
+    }
+    else if (OtherComp->ComponentHasTag(TEXT("LeftHandSphere")))
+    {
+        Mainplayer->bIsLeftHandinWeaponInven = false;
 
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap End"), true, FVector2D(3.0f, 3.0f));
+        if (Mainplayer->IsGrabedLeft == false && bIsWeaponAttached == true)
+        {
+            // 인벤토리에 부착되었던 무기를 손으로 가져간다.
+
+        }
+    }
 }
 
 void AWeaponInventory::CheckRaycast()

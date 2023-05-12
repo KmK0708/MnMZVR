@@ -122,6 +122,9 @@ public:
 	// 오른손 그랩 트리거 on/off 확인
 	bool RightGrabOn = false;
 	
+	bool bIsLeftHandinWeaponInven = false;
+	bool bIsRightHandinWeaponInven = false;
+
 	// 무기 bool 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab")
 	bool IsWeapon = false;
