@@ -61,8 +61,10 @@ void UCustomerFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		break;
 	case ECustomerState::WAITLONG:
 		WaitLong();
+		break;
 	case ECustomerState::ANGRY:
 		Angry();
+		break;
 	case ECustomerState::GOOD:
 		Good();
 		break;
