@@ -9,7 +9,7 @@
 ALongSword::ALongSword()
 {
 	// 공격력
-	MeleeDamage = 100.0f;
+	MeleeDamage = 1.0f;
 	WeaponMesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/Weapon_Pack/Mesh/Weapons/Weapons_Kit/SM_Sword.SM_Sword'")));
 	// AttackBox 크기,위치설정
 	AttackBox->SetBoxExtent(FVector(4.0f, 4.0f, 51.0f)); 

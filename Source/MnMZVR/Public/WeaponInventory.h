@@ -50,9 +50,6 @@ public:
 	UFUNCTION()
 	void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	UFUNCTION()
-	void CheckRaycast();
-
 	// 무기가 부착되었는가
 	UPROPERTY(EditAnywhere)
 	bool bIsWeaponAttached = false;

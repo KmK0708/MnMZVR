@@ -61,7 +61,7 @@ void AWeaponInventory::BeginPlay()
 void AWeaponInventory::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    CheckRaycast();
+
 }
 
 void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -120,7 +120,7 @@ void AWeaponInventory::OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedCompo
         if (Mainplayer->IsGrabedLeft == false && bIsWeaponAttached == true)
         {
             // 인벤토리에 부착되었던 무기를 손으로 가져간다.
-
+            Mainplayer->Weapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
         }
     }
 
@@ -152,8 +152,4 @@ void AWeaponInventory::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedCompone
     }
 }
 
-void AWeaponInventory::CheckRaycast()
-{
-    
-}
 

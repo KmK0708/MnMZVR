@@ -85,20 +85,14 @@ void AMeleeWeaponBase::Attack()
 			}
 			else
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p2")), true, FVector2D(3.0f, 3.0f));
+				//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p2")), true, FVector2D(3.0f, 3.0f));
 			}
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("NullException")), true, FVector2D(3.0f, 3.0f));
-
+			//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("NullException")), true, FVector2D(3.0f, 3.0f));
 		}
 
-	}
-
-	if (Enemy == nullptr)
-	{
-		return;
 	}
 
 	if (Enemy != nullptr)
@@ -130,7 +124,7 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		ATestEnemy* TestEnemy = Cast<ATestEnemy>(OtherActor);
 		SkelEnemy = Cast<AEnemy_Skeleton>(OtherActor);
-		if (TestEnemy != nullptr && SkelEnemy != nullptr)	//
+		if (/*TestEnemy != nullptr || */SkelEnemy != nullptr)	//
 		{
 			AttackBox->SetGenerateOverlapEvents(true); // °ø°ÝÀÌ µÊ
 			if (MainPlayer->IsGrabedLeft == true || MainPlayer->IsGrabedRight == true)
