@@ -42,6 +42,9 @@ public:
 	// 가방이 손에 붙었는가
 	bool bIsAttachedBagInLeftHand = false;
 
+	// 아이템이 인벤토리 콜리전에 붙었는가.
+	bool bIsAttacheditem = false;
+
 	UFUNCTION()
 	void OnItemBagOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 

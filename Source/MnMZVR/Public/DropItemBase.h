@@ -56,8 +56,11 @@ public:
 	class UEnemyFSM* FSMEnemy;
 
 	// MainPlayer
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	class AMainPlayer* MainPlayer;
+	// ItemInventory
+	UPROPERTY(EditAnywhere)
+	class AItemInventory* ItemInventory;
 
 	bool bIsOverlapRightHand = false;
 	bool bIsOverlapLeftHand = false;

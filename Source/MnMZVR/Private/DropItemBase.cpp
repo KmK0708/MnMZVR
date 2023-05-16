@@ -14,6 +14,7 @@
 #include "TestEnemy.h"
 #include "Enemy_Skeleton.h"
 #include "EnemyFSM.h"
+#include "ItemInventory.h"
 // 게임플레이스테틱
 #include "Kismet/GameplayStatics.h"
 
@@ -61,7 +62,12 @@ void ADropItemBase::Tick(float DeltaTime)
 
 void ADropItemBase::OnOverlapInven(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// 인벤토리에 오버랩되면 부착
+// 	// 인벤토리에 오버랩되면 부착
+// 	if (ItemInventory->ItemSetUpCollision)
+// 	{
+// 		// 오버랩 된 콜리전 위치에 바로 부착
+// 		this->AttachToComponent(ItemInventory->ItemSetUpCollision, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+// 	}
 
 }
 
@@ -79,7 +85,7 @@ void ADropItemBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, AAct
 
 	if (MainPlayer->bIsRightHandinWeaponInven == true && bIsOverlapRightHand == true && MainPlayer->IsGrabedRight == false)	// 메인플레이어->bool 손이 아이템인벤에 있는가 true
 	{
-		if (MainPlayer->WeaponInven->bIsWeaponAttached == true)	// 메인플레이어->아이템인벤-> bisItemAttached 트루
+		if (MainPlayer->ItemInven->bIsAttacheditem == true)	// 메인플레이어->아이템인벤-> bisItemAttached 트루
 		{
 			if (MainPlayer->RightGrabOn == true)
 			{
@@ -94,7 +100,7 @@ void ADropItemBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("ExceptionPoint11")), true, FVector2D(3.0f, 3.0f));
+		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("ExceptionPoint11")), true, FVector2D(3.0f, 3.0f));
 	}
 }
 

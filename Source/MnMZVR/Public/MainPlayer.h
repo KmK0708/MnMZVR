@@ -237,12 +237,27 @@ public:
 	// 클릭 함수
 	void OnClick(const FInputActionValue& Values);
 	
+	//===============인벤토리==================//
 	// 인벤토리 부착함수
 	UFUNCTION()
 	void AttachWeaponInventory();
+	// 아이템가방 부착함수
+	UFUNCTION()
+	void AttachItemInventory();
+
+	// 인벤토리 제자리 보내기 함수
+	void ItemInventoryPositionReset();
+	// ItemBag Reset Position
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_ItemInvenSetPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class AItemInventory* ItemInven;
 
 	bool bIsSwingingMeleeWeapon;
 
+
+	//====================================//
 public:
 	// 오/왼손 구체 콜리전이 인벤토리에 오버랩 되었는가.
 	bool bIsOverlappedRight;

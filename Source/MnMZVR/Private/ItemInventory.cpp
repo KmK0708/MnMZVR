@@ -18,6 +18,7 @@ AItemInventory::AItemInventory()
 	
 	ItemBagMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemBagMesh"));
 	ItemBagMesh->SetupAttachment(RootComponent);
+	ItemBagMesh->SetCollisionProfileName(TEXT("AttachedPropPreset"));
 	// 메시설정하기
 	ConstructorHelpers::FObjectFinder<UStaticMesh> ItemBag(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/BackPack/Static/BackPack.BackPack'"));
 	if (ItemBag.Succeeded())
@@ -27,11 +28,13 @@ AItemInventory::AItemInventory()
 		ItemBagMesh->SetRelativeLocation(FVector (0,0,0));
 	}
 	ItemBagCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("ItemBagCollision"));
+	ItemBagCollision->SetCollisionProfileName(TEXT("ItemBagPreset"));
 	ItemBagCollision->SetupAttachment(ItemBagMesh);
 	ItemBagCollision->SetBoxExtent(FVector(70.f, 70.f, 150.f));
 	ItemBagCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 
 	ItemSetUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("ItemSetUpCollision"));
+	ItemSetUpCollision->SetCollisionProfileName(TEXT("ItemInventoryPreset"));
 	ItemSetUpCollision->SetupAttachment(ItemBagMesh);
 	ItemSetUpCollision->SetSphereRadius(20.f);
 	ItemSetUpCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
@@ -72,11 +75,14 @@ void AItemInventory::OnItemBagOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	// 플레이어의 손이고 손의 LeftHandSphere 가 오버랩 되었고 왼손이 그랩이 비활성화된 상태일때.
 	if (MainPlayer->IsGrabedLeft == false && bIsOverlapBagColLeftHand == true)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("LeftHandItemInven")), true, FVector2D(3.0f, 3.0f));
+
 		// 플레이어의 왼손에 붙여준다.
 		// 크기를 줄인다.
-		this->AttachToComponent(MainPlayer->LeftHandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HandLSocket"));
+		MainPlayer->ItemInven->AttachToComponent(MainPlayer->LeftHandMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HandLSocket"));
 		// 회전시켜준다.
-		this->SetActorRelativeRotation(FRotator(90.f, 0.f, 0.f));
+		MainPlayer->ItemInven->SetActorRelativeRotation(FRotator(0.f, 180.f, 0.f));
+		bIsAttachedBagInLeftHand = true;
 	}
 
 }
@@ -87,6 +93,7 @@ void AItemInventory::OnItemSetUpOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	if (Item)
 	{
 		// 아이템 어태치
+		bIsAttacheditem = true;
 		Item->AttachToComponent(ItemSetUpCollision, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		MainPlayer->UnTryGrabRight();
 		MainPlayer->IsGrabedRight = false;

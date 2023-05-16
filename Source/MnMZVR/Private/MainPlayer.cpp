@@ -8,6 +8,7 @@
 #include "MeleeWeaponBase.h"
 #include "WeaponInventory.h"
 #include "Components/ChildActorComponent.h"
+#include "ItemInventory.h"
 #include <Components/BoxComponent.h>
 #include <Components/SphereComponent.h>
 #include <DrawDebugHelpers.h>
@@ -83,7 +84,7 @@ AMainPlayer::AMainPlayer()
 	RightHandSphere->SetRelativeLocation(FVector(0.0f, 7.0f, 2.0f));
 	// 오른쪽 콜라이더 태그
 	RightHandSphere->ComponentTags.Add(TEXT("RightHandSphere"));
-	
+
 
 	// 스켈레탈 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> RHandMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_right.SKM_MannyXR_right'"));
@@ -125,9 +126,11 @@ AMainPlayer::AMainPlayer()
 
 	WeaponInven = CreateDefaultSubobject<AWeaponInventory>(TEXT("WeaponInven"));
 	// 액터 WeaponInven 을 소켓에 붙이기
-	WeaponInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponInvenLeft"));
+	//WeaponInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponInvenLeft"));
 	// 컨스트럭터 헬퍼를 이용해서 AActor 인 WeaponInven 을 찾아서 할당
 //	ConstructorHelpers::FClassFinder<AWeaponInventory> WeaponInvenClass(TEXT("/Script/VR_Tutorial.WeaponInventory"));
+
+	ItemInven = CreateDefaultSubobject<AItemInventory>(TEXT("ItemInven"));
 
 	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
@@ -179,6 +182,7 @@ void AMainPlayer::BeginPlay()
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
 	PlayerHP = PlayerMaxHP;
 	AttachWeaponInventory();
+	AttachItemInventory();
 }
 
 // Called every frame
@@ -220,6 +224,17 @@ void AMainPlayer::Tick(float DeltaTime)
 		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
 
 	}
+
+	if (ItemInven)
+	{
+		
+		
+	    FString text1 = ItemInven->GetAttachParentSocketName().ToString();
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("parent : %s"), *text1), true, FVector2D(3.0f, 3.0f));
+		
+
+	}
+	
 }
 
 // Called to bind functionality to input
@@ -238,6 +253,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		enhancedInputComponent->BindAction(IA_Grab_L, ETriggerEvent::Completed, this, &AMainPlayer::UnTryGrabLeft);
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Started, this, &AMainPlayer::TryGrabRight);
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Completed, this, &AMainPlayer::UnTryGrabRight);
+		enhancedInputComponent->BindAction(IA_ItemInvenSetPosition, ETriggerEvent::Started, this, &AMainPlayer::ItemInventoryPositionReset);
 	}
 }
 
@@ -277,6 +293,54 @@ void AMainPlayer::AttachWeaponInventory()
 		WeaponInven = WeaponInventory;
 		WeaponInventory->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 	}
+}
+
+void AMainPlayer::AttachItemInventory()
+{
+	
+	if (ItemInven)
+	{
+		FName SocketName(TEXT("ItemBag"));
+		// 아이템을 소켓위치에서 떨어트려 붙여준다.
+		ItemInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+		// 아이템을 스폰할때 회전시켜준다.
+		ItemInven->SetActorRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
+		ItemInven->SetActorRelativeLocation(FVector(0.0f, -10.0f, -20.0f));
+	}
+	else
+	{
+		ItemInven = GetWorld()->SpawnActor<AItemInventory>();
+		FName SocketName(TEXT("ItemBag"));
+		//ItemInven->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		// 아이템을 소켓위치에서 떨어트려 붙여준다.
+		ItemInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+		// 아이템을 스폰할때 회전시켜준다.
+		ItemInven->SetActorRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
+		ItemInven->SetActorRelativeLocation(FVector(0.0f, -10.0f, -20.0f));
+	}
+}
+
+void AMainPlayer::ItemInventoryPositionReset()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("press x")), true, FVector2D(3.0f, 3.0f));
+	if (ItemInven)
+	{
+		// 아이템인벤토리가 손에 부착이 된 상태라면 , 버튼을 눌러 다시 소켓ItemBag 으로 돌려준다.
+		if (ItemInven->bIsAttachedBagInLeftHand == true)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("reset position")), true, FVector2D(3.0f, 3.0f));
+			ItemInven->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			//ItemInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("ItemBag")));
+			ItemInven->bIsOverlapBagColLeftHand = false;
+			ItemInven->bIsAttachedBagInLeftHand = false;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ItemInven is nullptr"));
+	}
+
+
 }
 
 void AMainPlayer::TryGrabLeft()
@@ -420,7 +484,7 @@ void AMainPlayer::TryGrabRightInven()
 
 void AMainPlayer::TryGrabLeftInven()
 {
-	
+
 }
 
 void AMainPlayer::UnTryGrabLeft()
@@ -571,7 +635,7 @@ void AMainPlayer::RemoteGrab()
 	bool bHit = GetWorld()->SweepSingleByChannel(HitInfo, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(RemoteRadius), Param);
 
 	// 충돌이 되면 잡아당기기 애니메이션 실행
-	if ( bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
+	if (bHit && HitInfo.GetComponent()->IsSimulatingPhysics())
 	{
 		// 잡았다
 		IsGrabedRight = true;
