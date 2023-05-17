@@ -23,14 +23,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere)
+	class UPrimitiveComponent* rootComp;
+
 	// 아이템 메시
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* ItemMesh;
 	// 손에 닿았는지 스피어콜리전
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class USphereComponent* SphereComp;
 	// 아이템 인벤토리 오버랩 콜리전
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* ItemInvenCol;
 
 	// 플레이어 손에있는가.
@@ -48,6 +51,10 @@ public:
 	// 오버랩 끝났을때.
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	// 인벤토리에 담겼을시 피직스 끄기
+	UFUNCTION()
+	void SetPhysicsOff();
 
 	UPROPERTY()
 	class AEnemy_Skeleton* SkelEnemy;

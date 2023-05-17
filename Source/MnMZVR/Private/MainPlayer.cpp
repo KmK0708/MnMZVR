@@ -230,7 +230,7 @@ void AMainPlayer::Tick(float DeltaTime)
 		
 		
 	    FString text1 = ItemInven->GetAttachParentSocketName().ToString();
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("parent : %s"), *text1), true, FVector2D(3.0f, 3.0f));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("parent : %s"), *text1), true, FVector2D(3.0f, 3.0f));
 		
 
 	}
@@ -330,7 +330,7 @@ void AMainPlayer::ItemInventoryPositionReset()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("reset position")), true, FVector2D(3.0f, 3.0f));
 			ItemInven->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			//ItemInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("ItemBag")));
+			ItemInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("ItemBag")));
 			ItemInven->bIsOverlapBagColLeftHand = false;
 			ItemInven->bIsAttachedBagInLeftHand = false;
 		}

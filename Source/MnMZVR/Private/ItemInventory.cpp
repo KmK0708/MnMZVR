@@ -72,6 +72,11 @@ void AItemInventory::OnItemBagOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("LeftHandItemBag")), true, FVector2D(3.0f, 3.0f));
 		
 	}
+	if (bIsAttachedBagInLeftHand == true)
+	{
+		return;
+	}
+
 	// 플레이어의 손이고 손의 LeftHandSphere 가 오버랩 되었고 왼손이 그랩이 비활성화된 상태일때.
 	if (MainPlayer->IsGrabedLeft == false && bIsOverlapBagColLeftHand == true)
 	{
@@ -94,10 +99,13 @@ void AItemInventory::OnItemSetUpOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	{
 		// 아이템 어태치
 		bIsAttacheditem = true;
+		Item->SetPhysicsOff();
 		Item->AttachToComponent(ItemSetUpCollision, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		MainPlayer->UnTryGrabRight();
+		// 피직스 끈다.
+		//MainPlayer->UnTryGrabRight();
 		MainPlayer->IsGrabedRight = false;
 		MainPlayer->RightGrabOn = false;
+		MainPlayer->RightHandMesh->SetVisibility(true);
 	}
 }
 
