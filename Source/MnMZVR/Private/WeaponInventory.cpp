@@ -141,6 +141,13 @@ void AWeaponInventory::OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedCompone
     }
     else if (OtherComp->ComponentHasTag(TEXT("LeftHandSphere")))
     {
+        //크래시 부분 해결
+        // Mainplayer 가 nullptr 이면 실행하지 마라
+        if (Mainplayer == nullptr)
+        {
+            return;
+        }
+
         Mainplayer->bIsLeftHandinWeaponInven = false;
 
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LHand Overlap End"), true, FVector2D(3.0f, 3.0f));
