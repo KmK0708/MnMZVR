@@ -68,8 +68,9 @@ public:
 	// ItemInventory
 	UPROPERTY(EditAnywhere)
 	class AItemInventory* ItemInventory;
-
+	UPROPERTY(EditAnywhere)
 	bool bIsOverlapRightHand = false;
+	UPROPERTY(EditAnywhere)
 	bool bIsOverlapLeftHand = false;
 
 	// 아이템이름

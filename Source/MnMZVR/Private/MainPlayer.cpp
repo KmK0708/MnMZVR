@@ -297,7 +297,7 @@ void AMainPlayer::AttachWeaponInventory()
 
 void AMainPlayer::AttachItemInventory()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("attach")), true, FVector2D(3.0f, 3.0f));
 	if (ItemInven)
 	{
 		FName SocketName(TEXT("ItemBag"));
@@ -309,6 +309,7 @@ void AMainPlayer::AttachItemInventory()
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("Spawnattach")), true, FVector2D(3.0f, 3.0f));
 		ItemInven = GetWorld()->SpawnActor<AItemInventory>();
 		FName SocketName(TEXT("ItemBag"));
 		//ItemInven->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
