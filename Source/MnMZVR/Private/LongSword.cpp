@@ -4,15 +4,20 @@
 #include "LongSword.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 ALongSword::ALongSword()
 {
 	// 공격력
-	MeleeDamage = 100.0f;
+	MeleeDamage = 1.0f;
 	WeaponMesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/Weapon_Pack/Mesh/Weapons/Weapons_Kit/SM_Sword.SM_Sword'")));
 	// AttackBox 크기,위치설정
 	AttackBox->SetBoxExtent(FVector(4.0f, 4.0f, 51.0f)); 
 	AttackBox->SetRelativeLocation(FVector(0.0f, 0.0f, -65.0f));
+	//Spherecol 사이즈
+	SphereCol->SetSphereRadius(15.0f);
+	// Spherecol 위치
+	SphereCol->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 }
 
 void ALongSword::BeginPlay()

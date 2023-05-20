@@ -19,6 +19,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -29,6 +31,26 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* WeaponInvenMesh;
 
+	UPROPERTY(EditAnywhere)
+	class AMainPlayer* Player;
+
+	UPROPERTY(EditAnywhere)
+	class AActor* GrabActor;
+
+	UPROPERTY(EditAnywhere)
+	float TraceDistance = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsRaycastOn;
+
+
     UFUNCTION()
     void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	// 무기가 부착되었는가
+	UPROPERTY(EditAnywhere)
+	bool bIsWeaponAttached = false;
 };

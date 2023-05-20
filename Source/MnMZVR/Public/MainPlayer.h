@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/ChildActorComponent.h"
 #include "MainPlayer.generated.h"
 
 UCLASS()
@@ -67,12 +68,22 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class USkeletalMeshComponent* RightHandMesh;
 
-	// 오른손 콜리전박스
+	// 오른손 콜리전스피어
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
-	class UBoxComponent* RightHandBox;
+	class USphereComponent* RightHandSphere;
+	// 왼손 콜리전스피어
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
+	class USphereComponent* LeftHandSphere;
+
 	// 왼손 콜리전박스
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hand")
 	class UBoxComponent* LeftHandBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* BeltMeshComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class AWeaponInventory* WeaponInven;
 
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
@@ -86,16 +97,36 @@ public:
 	// 잡을 최대 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
 		float GrabMaxRange = 50.0f;
+
+	UPROPERTY()
+	class AActor* GrabbedActorRight;
+	// 왼손 그랩 액터
+	UPROPERTY()
+	class AActor* GrabbedActorLeft;
 	// 잡은 물체 기억
 	UPROPERTY()
 	class UPrimitiveComponent* GrabbedObject;
+
+	// 왼쪽 잡은 물체 기억
+	UPROPERTY()
+	class UPrimitiveComponent* LeftGrabbedObject;
+
+
 	
 	//왼잡 bool 변수
 	bool IsGrabedLeft = false;
+	// 왼손 그랩 트리거 on/off 확인
+	bool LeftGrabOn = false;
 	//오잡 bool 변수
 	bool IsGrabedRight = false;
+	// 오른손 그랩 트리거 on/off 확인
+	bool RightGrabOn = false;
 	
+	bool bIsLeftHandinWeaponInven = false;
+	bool bIsRightHandinWeaponInven = false;
+
 	// 무기 bool 변수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grab")
 	bool IsWeapon = false;
 
 	// 던지면 원하는 방향으로 날아가도록 하고싶다.
@@ -104,12 +135,20 @@ public:
 		float MyThrowPower = 10000.0f;
 	// 던질 방향
 	FVector ThrowDirection;
+	// 왼쪽 던질 방향
+	FVector LeftThrowDirection;
 	// 직전위치
 	FVector PrevPos;
+	// 왼손직전위치
+	FVector LeftPrevPos;
 	// 이전 회전값
 	FQuat PrevRot;
+	// 왼쪽 이전 회전값
+	FQuat LeftPrevRot;
 	// 회전방향
 	FQuat DeltaRotation;
+	// 왼쪽 회전방향
+	FQuat LeftDeltaRotation;
 	// 회전빠르기
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	float TorquePower = 1;
@@ -123,14 +162,30 @@ public:
 	UPROPERTY()
 	FVector LastGrabbedObjectPosition;
 
+	UPROPERTY()
+	FVector LastGrabbedObjectPositionLeft;
+
 	float CurrentGrabbedObjectVelocity;
 
 	// GrabPoint HandOffset
 	UPROPERTY(EditAnywhere, Category = "Grab")
 	FVector HandOffset = FVector(0, 0, 0);
+	//============잡기==============//
+	// 잡기 시도 기능(왼쪽)`
+	void TryGrabLeft();
+	// 인벤토리 잡기 시도 기능(왼쪽)
+	void TryGrabLeftInven();
+	// 잡기 시도 기능(오른쪽)
+	void TryGrabRight();
+	// 잡기 시도 기능(오른쪽)
+	void TryGrabRightInven();
+	// 왼 놓기
+	void UnTryGrabLeft();
+	// 오 놓기
+	void UnTryGrabRight();
 
 	//=============위젯==============//
-	protected:
+	public:
 	// 위젯 관련 속성
 	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
 		class UWidgetInteractionComponent* WidgetInteractionComp;
@@ -172,14 +227,7 @@ public:
 
 	//=================================//
 
-	// 잡기 시도 기능(왼쪽)
-	void TryGrabLeft();
-	// 잡기 시도 기능(오른쪽)
-	void TryGrabRight();
-	// 왼 놓기
-	void UnTryGrabLeft();
-	// 오 놓기
-	void UnTryGrabRight();
+
 	// 잡고있는중
 	void Grabbing();
 	// 이동처리함수
@@ -188,13 +236,32 @@ public:
 	void Turn(const FInputActionValue& Values);
 	// 클릭 함수
 	void OnClick(const FInputActionValue& Values);
+	
+	//===============인벤토리==================//
+	// 인벤토리 부착함수
+	UFUNCTION()
+	void AttachWeaponInventory();
+	// 아이템가방 부착함수
+	UFUNCTION()
+	void AttachItemInventory();
 
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StartSwingingMeleeWeapon();
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StopSwingingMeleeWeapon();
+	// 인벤토리 제자리 보내기 함수
+	void ItemInventoryPositionReset();
+	// ItemBag Reset Position
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_ItemInvenSetPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class AItemInventory* ItemInven;
 
 	bool bIsSwingingMeleeWeapon;
+
+
+	//====================================//
+public:
+	// 오/왼손 구체 콜리전이 인벤토리에 오버랩 되었는가.
+	bool bIsOverlappedRight;
+	bool bIsOverlappedLeft;
 
 protected:
 // 플레이어 카메라
