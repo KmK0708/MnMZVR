@@ -15,7 +15,7 @@ AMace::AMace()
 	AttackBox->SetBoxExtent(FVector(10.0f, 10.0f, 10.0f));
 	AttackBox->SetRelativeLocation(FVector(0.0f, 0.0f, 65.0f));
 	//Spherecol 사이즈
-	SphereCol->SetSphereRadius(10.0f);
+	SphereCol->SetSphereRadius(20.0f);
 	// Spherecol 위치
 	SphereCol->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 

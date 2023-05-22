@@ -23,4 +23,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	// 상점 메시
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* ShopMesh;
+
+	// 상점 오버랩박스
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* ShopBoxComp;
+
+	// 상점 오버랩
+	UFUNCTION()
+	void OnOverlapShop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 };

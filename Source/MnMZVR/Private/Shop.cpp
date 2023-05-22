@@ -25,3 +25,7 @@ void AShop::Tick(float DeltaTime)
 
 }
 
+void AShop::OnOverlapShop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
