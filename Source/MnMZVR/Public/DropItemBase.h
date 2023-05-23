@@ -74,8 +74,8 @@ public:
 	bool bIsOverlapLeftHand = false;
 
 	// 아이템이름
-	UPROPERTY(EditAnywhere)
-	FString ItemName;
+// 	UPROPERTY(EditAnywhere)
+// 	FString ItemName;
 	// 아이템 설명
 	UPROPERTY(EditAnywhere)
 	FString ItemDesc;

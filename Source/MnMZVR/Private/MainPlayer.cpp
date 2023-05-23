@@ -99,7 +99,7 @@ AMainPlayer::AMainPlayer()
 
 	// 벨트 메시
 	BeltMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeltMesh"));
-	BeltMeshComp->SetupAttachment(RootComponent);
+	BeltMeshComp->SetupAttachment(PlayerCamera);
 	// 벨트 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Player_Belt.Player_Belt'"));
 	if (BeltMesh.Succeeded())
