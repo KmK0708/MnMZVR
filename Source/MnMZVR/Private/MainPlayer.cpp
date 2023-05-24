@@ -124,6 +124,13 @@ AMainPlayer::AMainPlayer()
 	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
 	WidgetInteractionComp->SetupAttachment(RightAim);
 
+	ItemCheckSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCheckSphere"));
+	ItemCheckSphere->SetupAttachment(RootComponent);
+	ItemCheckSphere->SetSphereRadius(100);
+	ItemCheckSphere->SetCollisionProfileName(TEXT("OverlapAll"));
+	ItemCheckSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ItemCheckSphere->SetRelativeLocation(FVector(0.0f, 0.0f, 45.0f));
+
 	WeaponInven = CreateDefaultSubobject<AWeaponInventory>(TEXT("WeaponInven"));
 	// 액터 WeaponInven 을 소켓에 붙이기
 	//WeaponInven->AttachToComponent(BeltMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponInvenLeft"));
@@ -253,6 +260,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Started, this, &AMainPlayer::TryGrabRight);
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Completed, this, &AMainPlayer::UnTryGrabRight);
 		enhancedInputComponent->BindAction(IA_ItemInvenSetPosition, ETriggerEvent::Started, this, &AMainPlayer::ItemInventoryPositionReset);
+		enhancedInputComponent->BindAction(IA_Getitem, ETriggerEvent::Triggered, this, &AMainPlayer::GetItem);
+		enhancedInputComponent->BindAction(IA_Menu, ETriggerEvent::Triggered, this, &AMainPlayer::MenuOn);
 	}
 }
 
