@@ -20,7 +20,7 @@ AItemInventory::AItemInventory()
 	ItemBagMesh->SetupAttachment(RootComponent);
 	ItemBagMesh->SetCollisionProfileName(TEXT("AttachedPropPreset"));
 	// 메시설정하기
-	ConstructorHelpers::FObjectFinder<UStaticMesh> ItemBag(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/BackPack/Static/BackPack.BackPack'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> ItemBag(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/BackPack/Static/BackPack.BackPack'"));	
 	if (ItemBag.Succeeded())
 	{
 		ItemBagMesh->SetStaticMesh(ItemBag.Object);
@@ -99,7 +99,7 @@ void AItemInventory::OnItemSetUpOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	{
 		// 아이템 어태치
 		bIsAttacheditem = true;
-		Item->SetPhysicsOff();
+		Item->SetPhysicsOff();	
 		Item->AttachToComponent(ItemSetUpCollision, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		// 피직스 끈다.
 		//MainPlayer->UnTryGrabRight();

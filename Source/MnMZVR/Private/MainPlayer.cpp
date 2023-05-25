@@ -27,7 +27,7 @@ AMainPlayer::AMainPlayer()
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(RootComponent);
 	PlayerCamera->SetRelativeLocation(FVector(0, 0, 64));
-	PlayerCamera->bUsePawnControlRotation = true;
+	//PlayerCamera->bUsePawnControlRotation = true;
 
 	// 왼손 추가
 	LeftHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
@@ -99,7 +99,7 @@ AMainPlayer::AMainPlayer()
 
 	// 벨트 메시
 	BeltMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeltMesh"));
-	BeltMeshComp->SetupAttachment(RootComponent);
+	BeltMeshComp->SetupAttachment(PlayerCamera);
 	// 벨트 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Player_Belt.Player_Belt'"));
 	if (BeltMesh.Succeeded())
@@ -121,8 +121,15 @@ AMainPlayer::AMainPlayer()
 	LeftAim->SetupAttachment(RootComponent);
 	LeftAim->SetTrackingMotionSource(FName("LeftAim"));
 
-	//  	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
-	//  	WidgetInteractionComp->SetupAttachment(RightAim);
+	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
+	WidgetInteractionComp->SetupAttachment(RightAim);
+
+	ItemCheckSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCheckSphere"));
+	ItemCheckSphere->SetupAttachment(RootComponent);
+	ItemCheckSphere->SetSphereRadius(100);
+	ItemCheckSphere->SetCollisionProfileName(TEXT("OverlapAll"));
+	ItemCheckSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ItemCheckSphere->SetRelativeLocation(FVector(0.0f, 0.0f, 45.0f));
 
 	WeaponInven = CreateDefaultSubobject<AWeaponInventory>(TEXT("WeaponInven"));
 	// 액터 WeaponInven 을 소켓에 붙이기
@@ -171,11 +178,10 @@ void AMainPlayer::BeginPlay()
 	{
 		// -> 기본 트랙킹 offset 설정
 		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
-		PlayerCamera->bUsePawnControlRotation = false;
-		// 플레이어가 보는방향을 앞으로 설정한다.
-		RightHand->SetRelativeLocation(FVector(0, 0, 0));
-		// 에임도 일치하게 하자
-		RightAim->SetRelativeLocation(FVector(0, 0, 0));
+// 		// 플레이어가 보는방향을 앞으로 설정한다.
+// 		RightHand->SetRelativeLocation(FVector(0, 0, 0));
+// 		// 에임도 일치하게 하자
+// 		RightAim->SetRelativeLocation(FVector(0, 0, 0));
 
 	}
 
@@ -190,15 +196,15 @@ void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// HMD 가 연결돼 있지 않으면
-	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled() == false)
-	{
-		//  -> 손이 카메라 방향과 일치하도록 하자
-		RightHand->SetRelativeRotation(PlayerCamera->GetRelativeRotation());
-		// 에임도 일치하게 하자
-		RightAim->SetRelativeRotation(PlayerCamera->GetRelativeRotation());
-
-	}
+// 	// HMD 가 연결돼 있지 않으면
+// 	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled() == false)
+// 	{
+// 		//  -> 손이 카메라 방향과 일치하도록 하자
+// 		RightHand->SetRelativeRotation(PlayerCamera->GetRelativeRotation());
+// 		// 에임도 일치하게 하자
+// 		RightAim->SetRelativeRotation(PlayerCamera->GetRelativeRotation());
+// 
+// 	}
 
 	// Grabbing
 	Grabbing();
@@ -254,6 +260,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Started, this, &AMainPlayer::TryGrabRight);
 		enhancedInputComponent->BindAction(IA_Grab_R, ETriggerEvent::Completed, this, &AMainPlayer::UnTryGrabRight);
 		enhancedInputComponent->BindAction(IA_ItemInvenSetPosition, ETriggerEvent::Started, this, &AMainPlayer::ItemInventoryPositionReset);
+		enhancedInputComponent->BindAction(IA_Getitem, ETriggerEvent::Triggered, this, &AMainPlayer::GetItem);
+		enhancedInputComponent->BindAction(IA_Menu, ETriggerEvent::Triggered, this, &AMainPlayer::MenuOn);
 	}
 }
 
@@ -262,13 +270,23 @@ void AMainPlayer::Move(const FInputActionValue& Values)
 	// 사용자의 입력에따라 앞뒤좌우로 이동하고 싶다.
 	// 1. 사용자의 입력에 따라
 	FVector2D Axis = Values.Get<FVector2D>();
-	AddMovementInput(GetActorForwardVector(), Axis.X);
-	AddMovementInput(GetActorRightVector(), Axis.Y);
+	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled() == false)
+	{
+		AddMovementInput(GetActorForwardVector(), Axis.X);
+		AddMovementInput(GetActorRightVector(), Axis.Y);
+	}
+	// 만약 HMD 가 연결되어 있다면
+	else
+	{
+		AddMovementInput(PlayerCamera->GetForwardVector(), Axis.X);
+		AddMovementInput(PlayerCamera->GetRightVector(), Axis.Y);
+	}
 }
 
 void AMainPlayer::Turn(const FInputActionValue& Values)
 {
 	FVector2D Axis = Values.Get<FVector2D>();
+
 	AddControllerYawInput(Axis.X);
 	AddControllerPitchInput(Axis.Y);
 }
@@ -297,7 +315,7 @@ void AMainPlayer::AttachWeaponInventory()
 
 void AMainPlayer::AttachItemInventory()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("attach")), true, FVector2D(3.0f, 3.0f));
 	if (ItemInven)
 	{
 		FName SocketName(TEXT("ItemBag"));
@@ -309,6 +327,7 @@ void AMainPlayer::AttachItemInventory()
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("Spawnattach")), true, FVector2D(3.0f, 3.0f));
 		ItemInven = GetWorld()->SpawnActor<AItemInventory>();
 		FName SocketName(TEXT("ItemBag"));
 		//ItemInven->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);

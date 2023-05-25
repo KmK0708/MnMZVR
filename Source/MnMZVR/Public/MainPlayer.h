@@ -263,6 +263,25 @@ public:
 	bool bIsOverlappedRight;
 	bool bIsOverlappedLeft;
 
+
+	//================플레이어 아이템 오버랩 범위(스피어)==================//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* ItemCheckSphere;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_Getitem;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_Menu;
+
+	// 블루프린트에서 구현할 아이템 가지기함수
+	UFUNCTION(BlueprintImplementableEvent)
+	void GetItem();
+
+	// 블루프린트에서 구현할 메뉴키기 함수
+	UFUNCTION(BlueprintImplementableEvent)
+	void MenuOn();
+
 protected:
 // 플레이어 카메라
 UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRCamera")

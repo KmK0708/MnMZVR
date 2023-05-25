@@ -58,7 +58,7 @@ void ADropItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ADropItemBase::OnOverlapHand);
-	ItemInvenCol->OnComponentBeginOverlap.AddDynamic(this, &ADropItemBase::OnOverlapInven);
+	//ItemInvenCol->OnComponentBeginOverlap.AddDynamic(this, &ADropItemBase::OnOverlapInven);
 
 	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
@@ -85,7 +85,7 @@ void ADropItemBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, AAct
 {
 
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("please")), true, FVector2D(3.0f, 3.0f));
+	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("please")), true, FVector2D(3.0f, 3.0f));
 
 	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
 	
