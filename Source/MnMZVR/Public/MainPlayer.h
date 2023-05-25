@@ -187,7 +187,7 @@ public:
 	//=============위젯==============//
 	public:
 	// 위젯 관련 속성
-	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "Widget")
 		class UWidgetInteractionComponent* WidgetInteractionComp;
 
 	// 릴리즈 상태로 되돌려놓기
