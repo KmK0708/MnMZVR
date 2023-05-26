@@ -32,6 +32,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* ItemSetUpCollision;
 
+	 UPROPERTY(EditAnyWhere, Category = UI)
+	class UWidgetComponent* ItemBagWidget;
+
+
+
+public:
 	// MainPlayer
 	UPROPERTY(EditAnywhere)
 	class AMainPlayer* MainPlayer;
