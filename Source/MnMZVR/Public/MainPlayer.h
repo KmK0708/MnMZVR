@@ -224,6 +224,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
 	float PlayerMaxHP = 100.0f;
 
+	// ÇÃ·¹ÀÌ¾î µ·
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
+	int32 PlayerMoney;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	class UWidgetComponent* MainWidgetComp;
 
 	//=================================//
 

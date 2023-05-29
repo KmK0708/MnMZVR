@@ -9,6 +9,7 @@
 #include "WeaponInventory.h"
 #include "Components/ChildActorComponent.h"
 #include "ItemInventory.h"
+#include "Components/WidgetComponent.h"
 #include <Components/BoxComponent.h>
 #include <Components/SphereComponent.h>
 #include <DrawDebugHelpers.h>
@@ -99,7 +100,7 @@ AMainPlayer::AMainPlayer()
 
 	// 벨트 메시
 	BeltMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeltMesh"));
-	BeltMeshComp->SetupAttachment(PlayerCamera);
+	BeltMeshComp->SetupAttachment(RootComponent);
 	// 벨트 메시 로드 후 할당
 	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Player_Belt.Player_Belt'"));
 	if (BeltMesh.Succeeded())
@@ -141,6 +142,17 @@ AMainPlayer::AMainPlayer()
 
 	MinSwingSpeed = 300.0f;
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
+
+	MainWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
+	MainWidgetComp->SetupAttachment(PlayerCamera);
+
+	ConstructorHelpers::FClassFinder<UUserWidget> playerUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KJY/BluePrint/UI/WB_MainUI.WB_MainUI'"));
+	if (playerUI.Succeeded())
+	{
+		MainWidgetComp->SetWidgetClass(playerUI.Class);
+	}
+	MainWidgetComp->InitWidget();
+
 }
 
 // Called when the game starts or when spawned
@@ -186,7 +198,8 @@ void AMainPlayer::BeginPlay()
 	}
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
-	PlayerHP = PlayerMaxHP;
+	PlayerHP = 50.0f;
+	PlayerMoney = 0;
 	AttachWeaponInventory();
 	AttachItemInventory();
 }
