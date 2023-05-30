@@ -91,6 +91,7 @@ public:
 		class UInputAction* IA_Grab_L;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 		class UInputAction* IA_Grab_R;
+
 	// 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
 		float GrabRange = 50.0f;
