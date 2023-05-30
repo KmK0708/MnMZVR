@@ -32,7 +32,6 @@ ADropItemBase::ADropItemBase()
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	ItemMesh->SetupAttachment(RootComponent);
 	ItemMesh->SetSimulatePhysics(true);
-	ItemMesh->SetCollisionProfileName(TEXT("PropPreset"));
 	ItemMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 
 
@@ -61,6 +60,8 @@ void ADropItemBase::BeginPlay()
 	//ItemInvenCol->OnComponentBeginOverlap.AddDynamic(this, &ADropItemBase::OnOverlapInven);
 
 	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	ItemMesh->SetCollisionProfileName(TEXT("PropPreset"));
 }
 
 // Called every frame
