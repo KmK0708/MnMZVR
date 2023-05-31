@@ -91,6 +91,7 @@ public:
 		class UInputAction* IA_Grab_L;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 		class UInputAction* IA_Grab_R;
+
 	// 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
 		float GrabRange = 50.0f;
@@ -187,7 +188,7 @@ public:
 	//=============위젯==============//
 	public:
 	// 위젯 관련 속성
-	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "Widget")
 		class UWidgetInteractionComponent* WidgetInteractionComp;
 
 	// 릴리즈 상태로 되돌려놓기
@@ -224,6 +225,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
 	float PlayerMaxHP = 100.0f;
 
+	// 플레이어 돈
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
+	int32 PlayerMoney;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	class UWidgetComponent* MainWidgetComp;
 
 	//=================================//
 

@@ -8,24 +8,25 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "DropItemBase.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AItemInventory::AItemInventory()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	ItemBagMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemBagMesh"));
 	ItemBagMesh->SetupAttachment(RootComponent);
 	ItemBagMesh->SetCollisionProfileName(TEXT("AttachedPropPreset"));
 	// 메시설정하기
-	ConstructorHelpers::FObjectFinder<UStaticMesh> ItemBag(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/BackPack/Static/BackPack.BackPack'"));	
+	ConstructorHelpers::FObjectFinder<UStaticMesh> ItemBag(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/BackPack/Static/BackPack.BackPack'"));
 	if (ItemBag.Succeeded())
 	{
 		ItemBagMesh->SetStaticMesh(ItemBag.Object);
 		ItemBagMesh->SetRelativeScale3D(FVector(0.2f, 0.2f, 0.2f));
-		ItemBagMesh->SetRelativeLocation(FVector (0,0,0));
+		ItemBagMesh->SetRelativeLocation(FVector(0, 0, 0));
 	}
 	ItemBagCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("ItemBagCollision"));
 	ItemBagCollision->SetCollisionProfileName(TEXT("ItemBagPreset"));
@@ -39,17 +40,32 @@ AItemInventory::AItemInventory()
 	ItemSetUpCollision->SetSphereRadius(20.f);
 	ItemSetUpCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 
+	ItemBagWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ItemBagWidget"));
+	ItemBagWidget->SetupAttachment(ItemBagMesh);
+	ItemBagWidget->SetRelativeLocation(FVector(0, 0, 180));
+	ItemBagWidget->SetRelativeRotation(FRotator(0, 90, 0));
+	ItemBagWidget->SetCollisionProfileName(TEXT("UI_Preset"));
+	ItemBagWidget->SetWidgetSpace(EWidgetSpace::World);
+
+   	//static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD_obj(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KJY/BluePrint/UI/WB_TEST.WB_TEST'"));
+   	//if (UI_HUD_obj.Succeeded())
+   	//{
+   	//	ItemBagWidget->SetWidgetClass(UI_HUD_obj.Class);
+   	//}
+
 }
 
 // Called when the game starts or when spawned
 void AItemInventory::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	ItemBagCollision->OnComponentBeginOverlap.AddDynamic(this, &AItemInventory::OnItemBagOverlap);
 	ItemSetUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AItemInventory::OnItemSetUpOverlap);
 	//SphereCol->OnComponentEndOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapEnd);
 	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	//ItemBagWidget->SetWidgetClass(UI_HUD.Class);
 }
 
 // Called every frame
@@ -70,7 +86,7 @@ void AItemInventory::OnItemBagOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		bIsOverlapBagColLeftHand = true;
 		// 로그 띄우기
 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("LeftHandItemBag")), true, FVector2D(3.0f, 3.0f));
-		
+
 	}
 	if (bIsAttachedBagInLeftHand == true)
 	{
@@ -99,7 +115,7 @@ void AItemInventory::OnItemSetUpOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	{
 		// 아이템 어태치
 		bIsAttacheditem = true;
-		Item->SetPhysicsOff();	
+		Item->SetPhysicsOff();
 		Item->AttachToComponent(ItemSetUpCollision, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		// 피직스 끈다.
 		//MainPlayer->UnTryGrabRight();

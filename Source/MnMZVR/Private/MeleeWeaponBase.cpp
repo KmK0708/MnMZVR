@@ -26,7 +26,7 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	// 물리기능 활성화
 	WeaponMesh->SetSimulatePhysics(true);
 	// 메쉬 콜리전 프리셋 WeaponPreset
-	WeaponMesh->SetCollisionProfileName(TEXT("WeaponPreset"));
+
 
 	// AttackBox 생성
 	AttackBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
@@ -58,7 +58,7 @@ void AMeleeWeaponBase::BeginPlay()
 	SphereCol->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapHand);
 	SphereCol->OnComponentEndOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapEnd);
 	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
+	WeaponMesh->SetCollisionProfileName(TEXT("WeaponPreset"));
 }
 
 // Called every frame
