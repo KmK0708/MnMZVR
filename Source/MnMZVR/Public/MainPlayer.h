@@ -85,6 +85,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class AWeaponInventory* WeaponInven;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float HandVelocity;
+
+	FVector RightPreviousPosition;
+	float RightPreviousTime;
+
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -188,8 +194,8 @@ public:
 	//=============위젯==============//
 	public:
 	// 위젯 관련 속성
-	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "Widget")
-		class UWidgetInteractionComponent* WidgetInteractionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly ,Category = "Widget")
+		class UWidgetInteractionComponent* UIInteractRight;
 
 	// 릴리즈 상태로 되돌려놓기
 	void ReleaseUIInput();
