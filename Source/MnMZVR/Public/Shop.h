@@ -24,10 +24,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	// 상점 스켈레탈 메시
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* ShopKeeperSkeletalMesh;
 	// 상점 메시
-
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* ShopMesh;
+
 
 	// 상점 오버랩박스
 	UPROPERTY(EditAnywhere)

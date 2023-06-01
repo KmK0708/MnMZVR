@@ -10,6 +10,7 @@
 #include "Components/ChildActorComponent.h"
 #include "ItemInventory.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/PlayerController.h"
 #include <Components/BoxComponent.h>
 #include <Components/SphereComponent.h>
 #include <DrawDebugHelpers.h>
@@ -114,7 +115,7 @@ AMainPlayer::AMainPlayer()
 
 	// 집게손가락
 	RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
-	RightAim->SetupAttachment(RootComponent);
+	RightAim->SetupAttachment(RightHandMesh);
 	RightAim->SetTrackingMotionSource(FName("RightAim"));
 
 	// 왼쪽집게손가락
@@ -122,8 +123,12 @@ AMainPlayer::AMainPlayer()
 	LeftAim->SetupAttachment(RootComponent);
 	LeftAim->SetTrackingMotionSource(FName("LeftAim"));
 
-	WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComp"));
-	WidgetInteractionComp->SetupAttachment(RightAim);
+ 	UIInteractRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("UIInteractRight"));
+	// 인터렉션 로드후 할당
+	if (UIInteractRight != nullptr)
+	{
+		UIInteractRight->SetupAttachment(RightAim);
+	}
 
 	ItemCheckSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCheckSphere"));
 	ItemCheckSphere->SetupAttachment(RootComponent);
@@ -146,13 +151,11 @@ AMainPlayer::AMainPlayer()
 	MainWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
 	MainWidgetComp->SetupAttachment(PlayerCamera);
 
-	ConstructorHelpers::FClassFinder<UUserWidget> playerUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KJY/BluePrint/UI/WB_MainUI.WB_MainUI'"));
-	if (playerUI.Succeeded())
-	{
-		MainWidgetComp->SetWidgetClass(playerUI.Class);
-	}
-	MainWidgetComp->InitWidget();
-
+// 	ConstructorHelpers::FClassFinder<UUserWidget> playerUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KJY/BluePrint/UI/WB_MainUI.WB_MainUI'"));
+// 	if (playerUI.Succeeded())
+// 	{
+// 		MainWidgetComp->SetWidgetClass(playerUI.Class);
+// 	}
 }
 
 // Called when the game starts or when spawned
@@ -200,8 +203,20 @@ void AMainPlayer::BeginPlay()
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
 	PlayerHP = 50.0f;
 	PlayerMoney = 0;
+
+	RightPreviousPosition = RightHand->GetComponentLocation();
+	RightPreviousTime = GetWorld()->TimeSeconds;
 	//AttachWeaponInventory();
 	//AttachItemInventory();
+	if (UIInteractRight == nullptr)
+	{
+		UIInteractRight = Cast<UWidgetInteractionComponent>(RightAim->GetChildComponent(0));
+	}
+	else
+	{
+		UIInteractRight->SetupAttachment(RightAim);
+		UIInteractRight->bShowDebug = true;
+	}
 }
 
 // Called every frame
@@ -218,7 +233,6 @@ void AMainPlayer::Tick(float DeltaTime)
 // 		RightAim->SetRelativeRotation(PlayerCamera->GetRelativeRotation());
 // 
 // 	}
-
 	// Grabbing
 	Grabbing();
 
@@ -230,7 +244,6 @@ void AMainPlayer::Tick(float DeltaTime)
 		LastGrabbedObjectPosition = CurrentPosition;
 
 		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
-
 	}
 
 	if (LeftGrabbedObject && IsWeapon == true)
@@ -241,19 +254,31 @@ void AMainPlayer::Tick(float DeltaTime)
 		LastGrabbedObjectPositionLeft = CurrentPosition;
 
 		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), CurrentGrabbedObjectVelocity), true, FVector2D(3.0f, 3.0f));
-
 	}
 
-	if (ItemInven)
-	{
-		
-		
-	    FString text1 = ItemInven->GetAttachParentSocketName().ToString();
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("parent : %s"), *text1), true, FVector2D(3.0f, 3.0f));
-		
-
-	}
 	
+// 	if (ItemInven)
+// 	{
+// 	    FString text1 = ItemInven->GetAttachParentSocketName().ToString();
+// 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("parent : %s"), *text1), true, FVector2D(3.0f, 3.0f));
+// 	}
+	
+		// Get current position and time
+	FVector CurrentPosition = RightHand->GetComponentLocation();
+	float CurrentTime = GetWorld()->TimeSeconds;
+	// Calculate displacement vector
+	FVector Displacement = CurrentPosition - RightPreviousPosition;
+	// Calculate time difference
+	float TimeDifference = CurrentTime - RightPreviousTime;
+	// Calculate velocity
+	FVector Velocity = Displacement / TimeDifference;
+	// Calculate speed magnitude
+	HandVelocity = Velocity.Size();
+	// Update previous position and time
+	RightPreviousPosition = CurrentPosition;
+	RightPreviousTime = CurrentTime;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("HandVelocity : %f"), HandVelocity), true, FVector2D(3.0f, 3.0f));
 }
 
 // Called to bind functionality to input
@@ -307,10 +332,10 @@ void AMainPlayer::Turn(const FInputActionValue& Values)
 void AMainPlayer::OnClick(const FInputActionValue& Values)
 {
 	// UI 에 이벤트를 전달하고 싶다.
-	if (WidgetInteractionComp)
+	if (UIInteractRight)
 	{
 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-		WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+		UIInteractRight->PressPointerKey(EKeys::LeftMouseButton);
 	}
 }
 
@@ -645,10 +670,10 @@ void AMainPlayer::Grabbing()
 void AMainPlayer::ReleaseUIInput()
 {
 	// UI 에 이벤트를 전달하고 싶다.
-	if (WidgetInteractionComp)
+	if (UIInteractRight)
 	{
 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-		WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
+		UIInteractRight->ReleasePointerKey(EKeys::LeftMouseButton);
 	}
 }
 
