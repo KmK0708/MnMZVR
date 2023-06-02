@@ -103,12 +103,12 @@ AMainPlayer::AMainPlayer()
 	BeltMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeltMesh"));
 	BeltMeshComp->SetupAttachment(RootComponent);
 	// 벨트 메시 로드 후 할당
-	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Player_Belt.Player_Belt'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Armor/Mainarmor.Mainarmor'"));
 	if (BeltMesh.Succeeded())
 	{
 		BeltMeshComp->SetStaticMesh(BeltMesh.Object);
-		BeltMeshComp->SetRelativeLocation(FVector(0, 0, 0));
-		BeltMeshComp->SetRelativeRotation(FRotator(0, -90, 0));
+		BeltMeshComp->SetRelativeLocation(FVector(0, 0, -90));
+		BeltMeshComp->SetRelativeRotation(FRotator(0, 0, 0));
 		BeltMeshComp->SetRelativeScale3D(FVector(1, 1, 1));
 
 	}
@@ -122,13 +122,6 @@ AMainPlayer::AMainPlayer()
 	LeftAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftAim"));
 	LeftAim->SetupAttachment(RootComponent);
 	LeftAim->SetTrackingMotionSource(FName("LeftAim"));
-
- 	UIInteractRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("UIInteractRight"));
-	// 인터렉션 로드후 할당
-	if (UIInteractRight != nullptr)
-	{
-		UIInteractRight->SetupAttachment(RightAim);
-	}
 
 	ItemCheckSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCheckSphere"));
 	ItemCheckSphere->SetupAttachment(RootComponent);
@@ -202,7 +195,7 @@ void AMainPlayer::BeginPlay()
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
 	PlayerHP = 50.0f;
-	PlayerMoney = 0;
+	PlayerMoney = 100;
 
 	RightPreviousPosition = RightHand->GetComponentLocation();
 	RightPreviousTime = GetWorld()->TimeSeconds;
@@ -331,12 +324,12 @@ void AMainPlayer::Turn(const FInputActionValue& Values)
 
 void AMainPlayer::OnClick(const FInputActionValue& Values)
 {
-	// UI 에 이벤트를 전달하고 싶다.
-	if (UIInteractRight)
-	{
-		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-		UIInteractRight->PressPointerKey(EKeys::LeftMouseButton);
-	}
+// 	// UI 에 이벤트를 전달하고 싶다.
+// 	if (UIInteractRight)
+// 	{
+// 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
+// 		UIInteractRight->PressPointerKey(EKeys::LeftMouseButton);
+// 	}
 }
 
 void AMainPlayer::AttachWeaponInventory()
@@ -669,12 +662,12 @@ void AMainPlayer::Grabbing()
 
 void AMainPlayer::ReleaseUIInput()
 {
-	// UI 에 이벤트를 전달하고 싶다.
-	if (UIInteractRight)
-	{
-		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
-		UIInteractRight->ReleasePointerKey(EKeys::LeftMouseButton);
-	}
+// 	// UI 에 이벤트를 전달하고 싶다.
+// 	if (UIInteractRight)
+// 	{
+// 		//WidgetInteractionComp->PressPointerKey(FKey(FName("LeftMouseButton")));
+// 		UIInteractRight->ReleasePointerKey(EKeys::LeftMouseButton);
+// 	}
 }
 
 void AMainPlayer::RemoteGrab()
