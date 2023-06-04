@@ -103,11 +103,11 @@ AMainPlayer::AMainPlayer()
 	BeltMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeltMesh"));
 	BeltMeshComp->SetupAttachment(RootComponent);
 	// 벨트 메시 로드 후 할당
-	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Armor/Mainarmor.Mainarmor'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> BeltMesh(TEXT("/Script/Engine.StaticMesh'/Game/KJY/3Dmodel/Armor/PlayerArmor1.PlayerArmor1'"));
 	if (BeltMesh.Succeeded())
 	{
 		BeltMeshComp->SetStaticMesh(BeltMesh.Object);
-		BeltMeshComp->SetRelativeLocation(FVector(0, 0, -90));
+		BeltMeshComp->SetRelativeLocation(FVector(0, 0, 0));
 		BeltMeshComp->SetRelativeRotation(FRotator(0, 0, 0));
 		BeltMeshComp->SetRelativeScale3D(FVector(1, 1, 1));
 
@@ -195,7 +195,7 @@ void AMainPlayer::BeginPlay()
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
 	PlayerHP = 50.0f;
-	PlayerMoney = 100;
+	PlayerMoney = 300;
 
 	RightPreviousPosition = RightHand->GetComponentLocation();
 	RightPreviousTime = GetWorld()->TimeSeconds;
