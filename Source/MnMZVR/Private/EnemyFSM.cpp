@@ -86,7 +86,7 @@ void UEnemyFSM::MoveState()
 	FVector dir = destiantion - me->GetActorLocation();
 	// 3. 방향으로 이동하고 싶다.
 	//me->AddMovementInput(dir.GetSafeNormal());
-	ai->MoveToLocation(destiantion);
+	ai->MoveToActor(target);
 
 	// 타깃과 가까워지면 공격 상태로 전환하고 싶다.
 	// 1. 만약 거리가 공격범위 안에 들어오면
@@ -105,42 +105,42 @@ void UEnemyFSM::MoveState()
 //공격상태
 void UEnemyFSM::AttackState()
 {
-	// 목표 : 일정 시간에 한 번씩 공격하고 싶다.
-		// 1. 시간이 흘러야 한다.
-		currentTime += GetWorld()->DeltaTimeSeconds;		
-	// 2. 공격 시간이 됐으니까
-	if (currentTime > attackDelayTime)
-	{
-		// 3. 공격하고 싶다.
-		UE_LOG(LogTemp, Warning, TEXT("Attack"));
-		/*GameMode->ShowPlayerHitWidget();
-		target->HP -= 5;
-		if (target->HP <= 0)
-		{
-			target->HP = 0;
-		}
-		GameMode->main_UI->PrintPlayerHP();
+	//// 목표 : 일정 시간에 한 번씩 공격하고 싶다.
+	//	// 1. 시간이 흘러야 한다.
+	//	currentTime += GetWorld()->DeltaTimeSeconds;		
+	//// 2. 공격 시간이 됐으니까
+	//if (currentTime > attackDelayTime)
+	//{
+	//	// 3. 공격하고 싶다.
+	//	UE_LOG(LogTemp, Warning, TEXT("Attack"));
+	//	//GameMode->ShowPlayerHitWidget();
+	//	target->PlayerHP -= 1;
+	//	if (target->PlayerHP <= 0)
+	//	{
+	//		target->PlayerHP = 0;
+	//	}
+	//	//GameMode->MainUI->PrintPlayerHP();
 
-		if (target->HP <= 0)
-		{
-			GameMode->ShowDefeatWidget();
-		}*/
+	//	if (target->PlayerHP <= 0)
+	//	{
+	//		//GameMode->ShowDefeatWidget();
+	//	}
 
-		// 경과 시간 초기화
-		currentTime = 0;
-		anim->bAttackPlay = true;
-	}
-	// 목표 : 타깃이 공격 범위를 벗아나면 상태를 이동으로 전환하고 싶다.
-	// 1. 타깃과의 거리가 필요하다.
-	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
-	// 2. 타깃과의 거리가 공격 범위를 벗어났으니까
-	if (distance > attackRange)
-	{
-		// 3. 상태를 이동으로 전환하고 싶다.
-		mState = EEnemystate::Move;
-		// 애니메이션 상태 동기화
-		anim->animState = mState;
-	}
+	//	// 경과 시간 초기화
+	//	currentTime = 0;
+	//	anim->bAttackPlay = true;
+	//}
+	//// 목표 : 타깃이 공격 범위를 벗아나면 상태를 이동으로 전환하고 싶다.
+	//// 1. 타깃과의 거리가 필요하다.
+	//float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
+	//// 2. 타깃과의 거리가 공격 범위를 벗어났으니까
+	//if (distance > attackRange)
+	//{
+	//	// 3. 상태를 이동으로 전환하고 싶다.
+	//	mState = EEnemystate::Move;
+	//	// 애니메이션 상태 동기화
+	//	anim->animState = mState;
+	//}
 }
 //피격상태
 void UEnemyFSM::DamageState()
