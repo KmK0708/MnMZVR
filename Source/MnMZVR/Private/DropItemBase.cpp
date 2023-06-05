@@ -85,17 +85,17 @@ void ADropItemBase::OnOverlapInven(UPrimitiveComponent* OverlappedComponent, AAc
 void ADropItemBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("please")), true, FVector2D(3.0f, 3.0f));
+// 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
+// 	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("please")), true, FVector2D(3.0f, 3.0f));
+// 
+// 	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
+// 	
+// 	if (_rightHandSphere == OtherComp)
+// 	{
+// 		bIsOverlapRightHand = true;
+// 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("RightHandOverlap")), true, FVector2D(3.0f, 3.0f));
+// 	}
 
-	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
-	
-	if (_rightHandSphere == OtherComp)
-	{
-		bIsOverlapRightHand = true;
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("RightHandOverlap")), true, FVector2D(3.0f, 3.0f));
-	}
-	
 // 	if (MainPlayer && bIsOverlapRightHand == true && MainPlayer->IsGrabedRight == false)	// 메인플레이어->bool 손이 아이템인벤에 있는가 true
 // 	{
 // 		if (MainPlayer->ItemInven->bIsAttacheditem == true)	// 메인플레이어->아이템인벤-> bisItemAttached 트루
