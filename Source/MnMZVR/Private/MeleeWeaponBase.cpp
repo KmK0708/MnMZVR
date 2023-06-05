@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+  // Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "MeleeWeaponBase.h"
@@ -26,7 +26,7 @@ AMeleeWeaponBase::AMeleeWeaponBase()
 	// 물리기능 활성화
 	WeaponMesh->SetSimulatePhysics(true);
 	// 메쉬 콜리전 프리셋 WeaponPreset
-	WeaponMesh->SetCollisionProfileName(TEXT("WeaponPreset"));
+
 
 	// AttackBox 생성
 	AttackBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
@@ -58,15 +58,15 @@ void AMeleeWeaponBase::BeginPlay()
 	SphereCol->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapHand);
 	SphereCol->OnComponentEndOverlap.AddDynamic(this, &AMeleeWeaponBase::OnOverlapEnd);
 	if (!MainPlayer)MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
+	WeaponMesh->SetCollisionProfileName(TEXT("WeaponPreset"));
 }
 
 // Called every frame
 void AMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	WeaponVelocity = GetVelocity().Size();
-	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponVelocity), true, FVector2D(3.0f, 3.0f));
+	WeaponVelocity = MainPlayer->HandVelocity;
+	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponVelocity), true, FVector2D(3.0f, 3.0f));
 }
 
 void AMeleeWeaponBase::Attack()
@@ -127,18 +127,17 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		if (/*TestEnemy != nullptr || */SkelEnemy != nullptr)	//
 		{
 			AttackBox->SetGenerateOverlapEvents(true); // 공격이 됨
-			if (MainPlayer->IsGrabedLeft == true || MainPlayer->IsGrabedRight == true)
-			{
-				float WeaponSwingSpeed = MainPlayer->CurrentGrabbedObjectVelocity;
-				//FVector Velocity = (CurrentPosition - MainPlayer->LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
+		
+			float WeaponSwingSpeed = MainPlayer->HandVelocity;
+			//FVector Velocity = (CurrentPosition - MainPlayer->LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
 
-				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponSwingSpeed), true, FVector2D(3.0f, 3.0f));
-				if (WeaponSwingSpeed > 300)
-				{
-					// Weapon 의 어택함수
-					Attack();
-				}
+			//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponSwingSpeed), true, FVector2D(3.0f, 3.0f));
+			if (WeaponVelocity > 300)
+			{
+				// Weapon 의 어택함수
+				Attack();
 			}
+			
 		}
 	}
 }
@@ -190,17 +189,17 @@ void AMeleeWeaponBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, A
 
 void AMeleeWeaponBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-
-	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
-	if (_rightHandSphere == OtherComp)
-	{
-
-		bIsOverlapRight = false;
-		// 로그 띄우기
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
-
-	}
+// 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
+// 
+// 	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
+// 	if (_rightHandSphere == OtherComp)
+// 	{
+// 
+// 		bIsOverlapRight = false;
+// 		// 로그 띄우기
+// 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
+// 
+// 	}
 }
 
 

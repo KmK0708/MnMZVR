@@ -85,12 +85,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class AWeaponInventory* WeaponInven;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float HandVelocity;
+
+	FVector RightPreviousPosition;
+	float RightPreviousTime;
+
 	//=============물체잡기=============//
 	// 필요속성 : 입력액션, 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 		class UInputAction* IA_Grab_L;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 		class UInputAction* IA_Grab_R;
+
 	// 잡을 범위
 	UPROPERTY(EditDefaultsOnly, Category = "Grab")
 		float GrabRange = 50.0f;
@@ -187,8 +194,8 @@ public:
 	//=============위젯==============//
 	public:
 	// 위젯 관련 속성
-	UPROPERTY(VisibleAnywhere, Category = "Widget", meta = (AllowPrivateAccess = true))
-		class UWidgetInteractionComponent* WidgetInteractionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly ,Category = "Widget")
+		class UWidgetInteractionComponent* UIInteractRight;
 
 	// 릴리즈 상태로 되돌려놓기
 	void ReleaseUIInput();
@@ -224,6 +231,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
 	float PlayerMaxHP = 100.0f;
 
+	// 플레이어 돈
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerInfo")
+	int32 PlayerMoney;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	class UWidgetComponent* MainWidgetComp;
 
 	//=================================//
 
@@ -262,6 +275,25 @@ public:
 	// 오/왼손 구체 콜리전이 인벤토리에 오버랩 되었는가.
 	bool bIsOverlappedRight;
 	bool bIsOverlappedLeft;
+
+
+	//================플레이어 아이템 오버랩 범위(스피어)==================//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* ItemCheckSphere;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_Getitem;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_Menu;
+
+	// 블루프린트에서 구현할 아이템 가지기함수
+	UFUNCTION(BlueprintImplementableEvent)
+	void GetItem();
+
+	// 블루프린트에서 구현할 메뉴키기 함수
+	UFUNCTION(BlueprintImplementableEvent)
+	void MenuOn();
 
 protected:
 // 플레이어 카메라

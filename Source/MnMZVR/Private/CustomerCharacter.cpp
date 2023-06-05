@@ -9,55 +9,55 @@
 // Sets default values
 ACustomerCharacter::ACustomerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	// ¿©¼º ½ºÄÌ·¹Å» ¸Þ½¬
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh1(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_carla_rigged_001_ue4/rp_carla_rigged_001_ue4.rp_carla_rigged_001_ue4'"));
-	if (FemaleMesh1.Succeeded())
-	{
-		FemaleMesh.Add(FemaleMesh1);
-	}
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh2(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_claudia_rigged_002_ue4/rp_claudia_rigged_002_ue4.rp_claudia_rigged_002_ue4'"));
-	if (FemaleMesh2.Succeeded())
-	{
-		FemaleMesh.Add(FemaleMesh2);
-	}
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh3(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_sophia_rigged_003_ue4/rp_sophia_rigged_003_ue4.rp_sophia_rigged_003_ue4'"));
-	if (FemaleMesh3.Succeeded())
-	{
-		FemaleMesh.Add(FemaleMesh3);
-	}
-
-	// ³²¼º ½ºÄÌ·¹Å» ¸Þ½¬
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh1(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_eric_rigged_001_ue4/rp_eric_rigged_001_ue4.rp_eric_rigged_001_ue4'"));
-	if (MaleMesh1.Succeeded())
-	{
-		MaleMesh.Add(MaleMesh1);
-	}
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh2(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
-	if (MaleMesh2.Succeeded())
-	{
-		MaleMesh.Add(MaleMesh2);
-	}
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh3(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_nathan_rigged_003_ue4/rp_nathan_rigged_003_ue4.rp_nathan_rigged_003_ue4'"));
-	if (MaleMesh3.Succeeded())
-	{
-		MaleMesh.Add(MaleMesh3);
-	}
-
-	ConstructorHelpers::FClassFinder<UAnimInstance> tempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/Jang/ABP_CustomerAnim.ABP_CustomerAnim_C'"));
-	if (tempAnim.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(tempAnim.Class);
-	}
-
-	CustomerFSM = CreateDefaultSubobject<UCustomerFSM>(TEXT("CustomerFSM"));
-
-// 	orderWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("orderWidget"));
-// 	orderWidget->SetupAttachment(GetMesh());
-
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+//  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+// 	PrimaryActorTick.bCanEverTick = true;
+// 
+// 	// ¿©¼º ½ºÄÌ·¹Å» ¸Þ½¬
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh1(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_carla_rigged_001_ue4/rp_carla_rigged_001_ue4.rp_carla_rigged_001_ue4'"));
+// 	if (FemaleMesh1.Succeeded())
+// 	{
+// 		FemaleMesh.Add(FemaleMesh1);
+// 	}
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh2(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_claudia_rigged_002_ue4/rp_claudia_rigged_002_ue4.rp_claudia_rigged_002_ue4'"));
+// 	if (FemaleMesh2.Succeeded())
+// 	{
+// 		FemaleMesh.Add(FemaleMesh2);
+// 	}
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> FemaleMesh3(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_sophia_rigged_003_ue4/rp_sophia_rigged_003_ue4.rp_sophia_rigged_003_ue4'"));
+// 	if (FemaleMesh3.Succeeded())
+// 	{
+// 		FemaleMesh.Add(FemaleMesh3);
+// 	}
+// 
+// 	// ³²¼º ½ºÄÌ·¹Å» ¸Þ½¬
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh1(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_eric_rigged_001_ue4/rp_eric_rigged_001_ue4.rp_eric_rigged_001_ue4'"));
+// 	if (MaleMesh1.Succeeded())
+// 	{
+// 		MaleMesh.Add(MaleMesh1);
+// 	}
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh2(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_manuel_rigged_001_ue4/rp_manuel_rigged_001_ue4.rp_manuel_rigged_001_ue4'"));
+// 	if (MaleMesh2.Succeeded())
+// 	{
+// 		MaleMesh.Add(MaleMesh2);
+// 	}
+// 	ConstructorHelpers::FObjectFinder<USkeletalMesh> MaleMesh3(TEXT("/Script/Engine.SkeletalMesh'/Game/Jang/Scanned3DPeoplePack/RP_Character/rp_nathan_rigged_003_ue4/rp_nathan_rigged_003_ue4.rp_nathan_rigged_003_ue4'"));
+// 	if (MaleMesh3.Succeeded())
+// 	{
+// 		MaleMesh.Add(MaleMesh3);
+// 	}
+// 
+// 	ConstructorHelpers::FClassFinder<UAnimInstance> tempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/Jang/ABP_CustomerAnim.ABP_CustomerAnim_C'"));
+// 	if (tempAnim.Succeeded())
+// 	{
+// 		GetMesh()->SetAnimInstanceClass(tempAnim.Class);
+// 	}
+// 
+// 	CustomerFSM = CreateDefaultSubobject<UCustomerFSM>(TEXT("CustomerFSM"));
+// 
+// // 	orderWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("orderWidget"));
+// // 	orderWidget->SetupAttachment(GetMesh());
+// 
+// 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 // Called when the game starts or when spawned
