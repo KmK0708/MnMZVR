@@ -195,7 +195,7 @@ void AMainPlayer::BeginPlay()
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
 	PlayerHP = 50.0f;
-	PlayerMoney = 300;
+	PlayerMoney = 200;
 
 	RightPreviousPosition = RightHand->GetComponentLocation();
 	RightPreviousTime = GetWorld()->TimeSeconds;
