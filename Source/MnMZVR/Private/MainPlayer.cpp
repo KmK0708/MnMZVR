@@ -142,7 +142,7 @@ AMainPlayer::AMainPlayer()
 	Weapon = CreateDefaultSubobject<AMeleeWeaponBase>(TEXT("Weapon"));
 
 	MainWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
-	MainWidgetComp->SetupAttachment(PlayerCamera);
+	MainWidgetComp->SetupAttachment(LeftHandMesh);
 
 // 	ConstructorHelpers::FClassFinder<UUserWidget> playerUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/KJY/BluePrint/UI/WB_MainUI.WB_MainUI'"));
 // 	if (playerUI.Succeeded())
