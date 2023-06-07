@@ -66,12 +66,12 @@ void AMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	WeaponVelocity = MainPlayer->HandVelocity;
-	GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponVelocity), true, FVector2D(3.0f, 3.0f));
+	//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponVelocity), true, FVector2D(3.0f, 3.0f));
 }
 
 void AMeleeWeaponBase::Attack()
 {
-	if (SkelEnemy != nullptr)
+	if (SkelEnemy != nullptr && bIsOverlapRight == true)
 	{
 		FSMEnemy = Cast<UEnemyFSM>(SkelEnemy->GetDefaultSubobjectByName(TEXT("fsm")));
 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("EnemyTouch")), true, FVector2D(3.0f, 3.0f));
@@ -124,7 +124,7 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		ATestEnemy* TestEnemy = Cast<ATestEnemy>(OtherActor);
 		SkelEnemy = Cast<AEnemy_Skeleton>(OtherActor);
-		if (/*TestEnemy != nullptr || */SkelEnemy != nullptr)	//
+		if (SkelEnemy != nullptr)	//
 		{
 			AttackBox->SetGenerateOverlapEvents(true); // °ø°ÝÀÌ µÊ
 		
@@ -183,23 +183,23 @@ void AMeleeWeaponBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, A
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("ExceptionPoint11")), true, FVector2D(3.0f, 3.0f));
+		
 	}
 }
 
 void AMeleeWeaponBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-// 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
-// 
-// 	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
-// 	if (_rightHandSphere == OtherComp)
-// 	{
-// 
-// 		bIsOverlapRight = false;
-// 		// ·Î±× ¶ç¿ì±â
-// 		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
-// 
-// 	}
+	//MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerController(this, 0)->GetPawn());
+
+	UPrimitiveComponent* _rightHandSphere = Cast<UPrimitiveComponent>(MainPlayer->RightHandSphere);
+	if (_rightHandSphere == OtherComp)
+	{
+
+		bIsOverlapRight = false;
+		// ·Î±× ¶ç¿ì±â
+		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
+
+	}
 }
 
 
