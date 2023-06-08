@@ -132,7 +132,7 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 			//FVector Velocity = (CurrentPosition - MainPlayer->LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
 
 			//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponSwingSpeed), true, FVector2D(3.0f, 3.0f));
-			if (WeaponVelocity > 300)
+			if (WeaponVelocity > 100)
 			{
 				// Weapon 의 어택함수
 				Attack();
