@@ -18,12 +18,13 @@ AEnemySpawn::AEnemySpawn()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
     // 박스콜리전
     BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
     BoxComp->SetCollisionProfileName(TEXT("Trigger"));
     BoxComp->SetupAttachment(RootComponent);
     // 크기설정
-    BoxComp->SetBoxExtent(FVector(2000.0f, 200.0f, 200.0f));
+    BoxComp->SetBoxExtent(FVector(200.0f, 200.0f, 200.0f));
     //콜리전을 올 오버랩으로
     BoxComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
@@ -32,6 +33,7 @@ AEnemySpawn::AEnemySpawn()
 
     NumSpawnedEnemies = 0;
 
+    Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called when the game starts or when spawned
@@ -53,18 +55,18 @@ void AEnemySpawn::Tick(float DeltaTime)
 
 void AEnemySpawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
 {
-   Player = Cast<AMainPlayer>(OtherActor);
-    // 플레이어가 Otheractor라면
-    if (OtherActor && (OtherActor != this) && OtherComp)
+    // 닿은게 OtherActor 이고 OtherActor가 Player 라면
+    if (OtherActor && (OtherActor != this) && OtherComp && (OtherActor->IsA(AMainPlayer::StaticClass())))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Overlap Begin"));
-		// 에너미 스폰
 		SpawnEnemies();
 	}
 }
 
 void AEnemySpawn::SpawnEnemies()
 {
+    // 스폰 애너미
+    Enemy = GetWorld()->SpawnActor<AEnemy_Skeleton>(EnemyToSpawn, GetActorLocation(), FRotator::ZeroRotator);
+    
 
 }
 

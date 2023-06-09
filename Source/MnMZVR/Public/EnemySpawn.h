@@ -32,6 +32,10 @@ TSubclassOf<class AEnemy_Skeleton> EnemyToSpawn;
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 class AEnemy_Skeleton* Enemy;
 
+// 에너미 FSM
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+class UEnemyFSM* EnemyFSM;
+
 // 스폰 딜레이
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 float SpawnDelay;
@@ -43,6 +47,14 @@ FTimerHandle SpawnTimer;
 // 플레이어
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 class AMainPlayer* Player;
+
+// 플레이어 감지 범위
+UPROPERTY(EditAnywhere, Category = "Spawning")
+float PlayerDetectionRange = 600.0f;
+
+// 플레이어 스폰 범위
+UPROPERTY(EditAnywhere, Category = "Spawning")
+float PlayerSpawnRange = 150.0f;
 
 // 콜리전박스
 UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
@@ -59,4 +71,6 @@ void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* Oth
 
 UFUNCTION()
 void SpawnEnemies();
+
+
 };
