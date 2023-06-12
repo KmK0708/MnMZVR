@@ -21,7 +21,7 @@ AEnemySpawn::AEnemySpawn()
 
     // 박스콜리전
     BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
-    BoxComp->SetCollisionProfileName(TEXT("Trigger"));
+    BoxComp->SetCollisionProfileName(TEXT("OverlapAll"));
     BoxComp->SetupAttachment(RootComponent);
     // 크기설정
     BoxComp->SetBoxExtent(FVector(200.0f, 200.0f, 200.0f));
@@ -31,7 +31,7 @@ AEnemySpawn::AEnemySpawn()
     // 스폰 딜레이
     SpawnDelay = 1.0f;
 
-    NumSpawnedEnemies = 0;
+    NumberOfEnemiesToSpawn = 4;
 
     Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
@@ -43,7 +43,6 @@ void AEnemySpawn::BeginPlay()
 
     // Register the OnOverlapBegin() function to fire when this actor overlaps another actor
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawn::OnOverlapBegin);
-	
 }
 
 // Called every frame
@@ -65,8 +64,14 @@ void AEnemySpawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 void AEnemySpawn::SpawnEnemies()
 {
     // 스폰 애너미
-    Enemy = GetWorld()->SpawnActor<AEnemy_Skeleton>(EnemyToSpawn, GetActorLocation(), FRotator::ZeroRotator);
     
+    
+    for (int32 i = 0; i < NumberOfEnemiesToSpawn; i++)
+    {
+        FVector SpawnLocation = GetActorLocation(); // Customize as needed
+        FRotator SpawnRotation = GetActorRotation(); // Customize as needed
+        Enemy = GetWorld()->SpawnActor<AEnemy_Skeleton>(EnemyToSpawn, GetActorLocation(), FRotator::ZeroRotator);
+    }
 
 }
 

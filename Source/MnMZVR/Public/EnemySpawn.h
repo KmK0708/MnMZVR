@@ -57,11 +57,11 @@ UPROPERTY(EditAnywhere, Category = "Spawning")
 float PlayerSpawnRange = 150.0f;
 
 // 콜리전박스
-UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
+UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
 class UBoxComponent* BoxComp;
 
-UPROPERTY()
-int32 NumSpawnedEnemies;
+ UPROPERTY(EditAnywhere, Category = "Spawner")
+ int32 NumberOfEnemiesToSpawn;
 
 
 // 오버랩

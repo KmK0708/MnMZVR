@@ -91,4 +91,6 @@ public:
 	//Enemy를 소유하고 있는 AIController
 	UPROPERTY()
 	class AAIController* ai;
+
+	bool bFoundAIController = false;
 };

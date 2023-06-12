@@ -19,24 +19,24 @@ void UEnemyFSM::BeginPlay()
 	Super::BeginPlay();
 	// 월드에서 MainPlayer 타깃 찾아오기
 	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AMainPlayer::StaticClass());
+
 	//MainPlayer 타입으로 캐스팅
 	target = Cast<AMainPlayer>(actor);
+
 	//소유 객체 가져오기
 	me = Cast<AEnemy_Skeleton>(GetOwner());
 	// UEnemyAnim* 할당
 	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
 
-	//GameMode = Cast<MnMZGameModeBase>(GetWorld()->GetAuthGameMode());
-
 	//Ai 컨트롤
 	ai = Cast<AAIController>(me->GetController());
+	//GameMode = Cast<MnMZGameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	// 내 본체의 EnemyAnim State에 내 State를 넣어주고 싶다.
 
 	//me->enemyAnim->state = this->mState;
@@ -86,7 +86,10 @@ void UEnemyFSM::MoveState()
 	FVector dir = destiantion - me->GetActorLocation();
 	// 3. 방향으로 이동하고 싶다.
 	//me->AddMovementInput(dir.GetSafeNormal());
-	ai->MoveToActor(target);
+	if (ai && target)
+	{
+		ai->MoveToActor(target);
+	}
 
 	// 타깃과 가까워지면 공격 상태로 전환하고 싶다.
 	// 1. 만약 거리가 공격범위 안에 들어오면
