@@ -93,4 +93,8 @@ public:
 	class AAIController* ai;
 
 	bool bFoundAIController = false;
+
+	// 동전 사운드
+	UPROPERTY(EditAnywhere, Category=Sound)
+	class USoundBase* coinSound;
 };

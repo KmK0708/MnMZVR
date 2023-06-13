@@ -201,7 +201,10 @@ void UEnemyFSM::OnDamageProcess(int32 damageValue)
 		//GameMode->CheckEnemyLeft();
 		////GameMode->main_UI->PrintPlayerMoney();
 		//GameMode->main_UI->PrintPlayerMoneyAnimation(target->money, target->money + 500);
-		//target->money += 500;
+		target->PlayerMoney += 50;
+		// 사운드 재생
+		UGameplayStatics::PlaySound2D(GetWorld(), coinSound);
+		
 		//GameMode->main_UI->PrintEarnMoney(500);
 
 		// 상태를 죽음으로 전환
