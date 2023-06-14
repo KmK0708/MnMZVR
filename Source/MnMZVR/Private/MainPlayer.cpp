@@ -28,7 +28,7 @@ AMainPlayer::AMainPlayer()
 	// 카메라 설정
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(RootComponent);
-	PlayerCamera->SetRelativeLocation(FVector(0, 0, 64));
+	PlayerCamera->SetRelativeLocation(FVector(0, 0, 84));
 	//PlayerCamera->bUsePawnControlRotation = true;
 
 	// 왼손 추가
@@ -194,7 +194,7 @@ void AMainPlayer::BeginPlay()
 	}
 
 	// 플레이어 체력은 플레이어 맥스 체력과 동일
-	PlayerHP = 50.0f;
+	PlayerHP = 70.0f;
 	PlayerMoney = 200;
 
 	RightPreviousPosition = RightHand->GetComponentLocation();

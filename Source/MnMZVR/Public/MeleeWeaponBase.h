@@ -37,6 +37,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MeleeDamage = 1.0f;
 
+	// 휘두를시 사운드큐
+	UPROPERTY(EditAnywhere)
+	class USoundBase* SwingSound;
+
 	// 플레이어 손에있는가.
 	UPROPERTY(EditAnywhere)
 	bool bIsInHand = false;

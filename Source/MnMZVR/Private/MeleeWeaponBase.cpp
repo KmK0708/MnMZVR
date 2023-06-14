@@ -79,8 +79,9 @@ void AMeleeWeaponBase::Attack()
 		{
 			if (FSMEnemy->hp > 0)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p1")), true, FVector2D(3.0f, 3.0f));
+				//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Blue, FString::Printf(TEXT("p1")), true, FVector2D(3.0f, 3.0f));
 				FSMEnemy->OnDamageProcess(MeleeDamage);
+				
 
 			}
 			else
@@ -100,7 +101,7 @@ void AMeleeWeaponBase::Attack()
 
 		float ModifiedDamage = MeleeDamage;
 		Enemy->AddHealth(-ModifiedDamage);
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("Enemy Health : %f"), Enemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
+		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Green, FString::Printf(TEXT("Enemy Health : %f"), Enemy->EnemyHealth), true, FVector2D(3.0f, 3.0f));
 		if (Enemy->EnemyHealth <= 0.f)
 		{
 			Enemy->Destroy();
@@ -132,10 +133,12 @@ void AMeleeWeaponBase::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 			//FVector Velocity = (CurrentPosition - MainPlayer->LastGrabbedObjectPosition) / GetWorld()->DeltaTimeSeconds;
 
 			//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Red, FString::Printf(TEXT("WeaponVelocity : %f"), WeaponSwingSpeed), true, FVector2D(3.0f, 3.0f));
-			if (WeaponVelocity > 300)
+			if (WeaponVelocity > 300 && bIsOverlapRight == true)
 			{
 				// Weapon 의 어택함수
 				Attack();
+				// 휘두를때 SwingSound 사운드큐 재생
+				UGameplayStatics::PlaySound2D(GetWorld(), SwingSound, 3.0f, 1.0f, 0.0f);
 			}
 			
 		}
@@ -170,7 +173,7 @@ void AMeleeWeaponBase::OnOverlapHand(UPrimitiveComponent* OverlappedComponent, A
 			if (MainPlayer->RightGrabOn == true)
 			{
 				// 피직스 키기
-				WeaponMesh->SetSimulatePhysics(false);
+				//WeaponMesh->SetSimulatePhysics(false);
 				MainPlayer->IsGrabedRight = true;
 				MainPlayer->IsWeapon = true;
 				// Attach yourself from your inventory to your hand.

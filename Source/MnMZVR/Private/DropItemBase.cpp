@@ -128,7 +128,7 @@ void ADropItemBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActo
 	
 		bIsOverlapRightHand = false;
 		// ·Î±× ¶ç¿ì±â
-		GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
+		//GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::Cyan, FString::Printf(TEXT("RightHandOverlapEnded")), true, FVector2D(3.0f, 3.0f));
 	}
 
 }
